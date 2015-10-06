@@ -1,0 +1,41 @@
+{
+  "name": "gooey-http",
+  "version": "0.0.0",
+  "description": "HTTP client-server synchronization module for Gooey",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/slurmulon/gooey-http"
+  },
+  "keywords": [
+    "data",
+    "binding",
+    "pub",
+    "sub",
+    "reactive",
+    "event-driven"
+  ],
+  "author": "MadHax",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/slurmulon/gooey-http/issues"
+  },
+  "devDependencies": {
+    "babel": "^5.8.21",
+    "gulp": "~3.9.0",
+    "gulp-babel": "~5.1.0",
+    "gulp-shell": "~0.4.2",
+    "istanbul": "^0.3.18",
+    "lodash": "~3.10.0",
+    "mocha": "~2.2.5",
+    "mocha-traceur": "~2.1.0",
+    "should": "~7.0.2"
+  },
+  "dependencies": {
+    "harmony-reflect": "^1.4.0",
+    "jsonpath": "~0.1.8"
+  }
+}
