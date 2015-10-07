@@ -8,9 +8,12 @@ import * as gooey from '../dist/core/index'
 export const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD', 'LINK']
 
 /**
- * Supported implementations of XHR
+ * Meta-information on XHR interface
  */
-export const xhrVersions = [for (i of [2,3,4,5]) `MSXML2.XmlHttp.${i}.0`].concat('Microsoft.XmlHttp')
+export const xhr = {
+  versions : [2,3,4,5].map(v => `MSXML2.XmlHttp.${v}.0`).concat('Microsoft.XmlHttp'),
+  events   : ['onloadstart', 'onprogress', 'onabort', 'onerror', 'onload', 'ontimeout', 'onloadend']
+}
 
 /**
  * Chainable interface that integrates HttpRequest and HttpResponse
@@ -23,6 +26,8 @@ export class Http extends gooey.Service {
    * @param {Object} proxies request / response middlewares
    */
   constructor(proxies?: Object = {}) {
+    super() // TODO
+
     this.proxies = proxies
 
     methods.forEach(m => {
@@ -47,12 +52,17 @@ export class HttpRequest extends Promise {
    * @param {?Object} body
    * @param {?Object} headers
    * @param {?String} type
+   * @param {?String} charset
    * @returns {HttpRequest}
    */
-  constructor({method: String, url: String, body?: Object, headers?: Object, type?: String}) {
-    if (!methods.find(method => method === name))) {
-      throw `Invalid request, unsupported method ${name}`
-    }
+  constructor(method: String, url: String, body?: Object, headers?: Object, type?: String, charset?: String) {
+    super((resolve, reject) => {
+      if (methods.find(method => method === name)) {
+        resolve(this)
+      } else {
+        reject(`Invalid request, valid method and url required: ${url} | ${method}`)
+      }
+    })
 
     this._xhr = this.createXhr()
     
@@ -61,29 +71,28 @@ export class HttpRequest extends Promise {
     this.headers(headers)
     this.body(body)
     this.type(type)
+    this.charset(charset)
   }
 
   /**
-   * Modifies a single request header
+   * Modifies request URL
    * 
-   * @param {String} field
-   * @param {String} value
+   * @param {String} url
    * @returns {HttpRequest}
    */
-  set header(field: String, value: String): HttpRequest {
-    this._headers[field] = value
-    this._xhr.setRequestHeader(field, value)
+  set url(url: String): HttpRequest {
+    this._url = url
     return this
   }
 
   /**
-   * Modifies request headers based on object
+   * Modifies request method (GET, POST, PUT, etc)
    * 
-   * @param {Object} obj {field: value}
+   * @param {String} method
    * @returns {HttpRequest}
    */
-  set headers(obj: Object): HttpRequest {
-    Object.keys(obj).forEach(key => this.header(key, obj[key]))
+  set method(method: String): HttpRequest {
+    this._method = method
     return this
   }
 
@@ -94,14 +103,61 @@ export class HttpRequest extends Promise {
    * @returns {HttpRequest}
    */
   set body(data): HttpRequest {
-    this.body = data
+    this._body = data
+    return this
+  }
+
+  /**
+   * Modifies a single request header
+   * 
+   * @param {Object} header {field: value}
+   * @returns {HttpRequest}
+   */
+  set header(header: Object): HttpRequest {
+    const {field, value} = header
+    this._headers[field] = value
+    this._xhr.setRequestHeader(field, value)
+    return this
+  }
+
+  /**
+   * Modifies request headers based on object
+   * 
+   * @param {Object} headers {field: value}
+   * @returns {HttpRequest}
+   */
+  set headers(headers: Object): HttpRequest {
+    Object.keys(headers).forEach(field => this.header({field, value: obj[key]}))
+    return this
+  }
+
+  /**
+   * Sets request content type
+   * 
+   * @param {String} type
+   * @param {String} charset
+   * @returns {HttpRequest}
+   */
+  set type(type: String = 'application/text'): HttpRequest {
+    this._body = data
+    this.header({field: 'Content-Type', value: `${type}; charset=${this._charset}`})
+    return this
+  }
+
+  /**
+   * Sets request character set
+   * 
+   * @param {String} charset
+   * @returns {HttpRequest}
+   */
+  set charset(charset: String = 'UTF-8'): HttpRequest {
+    this._charset = charset
     return this
   }
 
   /**
    * Creates a native XHR object and sends request on resolve
    * 
-   * @param {String} contentType
    * @returns {HttpRequest}
    */
   send(): HttpRequest {
@@ -109,6 +165,8 @@ export class HttpRequest extends Promise {
 
     if (xhr) {
       xhr.open(this.method, url, true)
+
+      // TODO - remaining xhr.events
 
       xhr.onload = () => {
         const body = this.mimeify(xhr.responseText, this.type)
@@ -139,20 +197,17 @@ export class HttpRequest extends Promise {
   /**
    * Builds a native XHR object based on the browser version
    * 
-   * @param {Object} data
-   * @param {String} mimeType
-   * @returns {Object}
+   * @returns {Object} native XHR object
    */
-  createXhr() {
+  createXhr(): Object {
     let xhr = null
 
     if (!Object.is(XMLHttpRequest, undefined)) {
       xhr = new XMLHttpRequest()
     } else {
-      versions.forEach(version => {
+      versions.forEach(version => { // TODO - optimize
         try {
-          xhr = new ActiveXObject(version)
-          break
+          xhr = xhr || new ActiveXObject(version)
         } catch (e) {}
       })
     }
@@ -181,7 +236,7 @@ export class HttpRequest extends Promise {
 export class HttpResponse extends Promise {
   
   constructor(request: HttpRequest) {
-
+    super() // TODO
   }
 
 }

@@ -9,7 +9,7 @@ gulp.task('default', ['compile'])
 gulp.task('clean', shell.task(['rm -rf dist']))
 
 gulp.task('compile', ['clean'], function() {
-  return gulp.src('{src|gooey/src|}/**/*.js', {cwd: '.', read: true})
+  return gulp.src('*.js', {cwd: 'src', read: true})
   .pipe(babel())
   .pipe(gulp.dest('dist'))
 })
