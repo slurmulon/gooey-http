@@ -75,7 +75,7 @@ export class HttpRequest extends Promise {
   }
 
   /**
-   * Fetches request's URL
+   * Fetches request URL
    * 
    * @returns {String}
    */
@@ -95,7 +95,7 @@ export class HttpRequest extends Promise {
   }
 
   /**
-   * Fetches request's method
+   * Fetches request method
    * 
    * @returns {String}
    */
@@ -115,7 +115,7 @@ export class HttpRequest extends Promise {
   }
 
   /**
-   * Fetches request's body
+   * Fetches request body
    * 
    * @returns {String}
    */
@@ -159,6 +159,15 @@ export class HttpRequest extends Promise {
   }
 
   /**
+   * Fetches request content type
+   * 
+   * @returns {String}
+   */
+  get type(): String {
+    return this._type
+  }
+
+  /**
    * Sets request content type
    * 
    * @param {String} type
@@ -166,9 +175,18 @@ export class HttpRequest extends Promise {
    * @returns {HttpRequest}
    */
   set type(type: String = 'application/text'): HttpRequest {
-    this._body = data
+    this._type = type
     this.header({field: 'Content-Type', value: `${type}; charset=${this._charset}`})
     return this
+  }
+
+  /**
+   * Fetches request character set
+   * 
+   * @returns {String}
+   */
+  get charset(): String {
+    return this._charset
   }
 
   /**
