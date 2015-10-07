@@ -255,6 +255,18 @@ export class HttpRequest extends Promise {
     }[mimeType] || data
   }
 
+  /**
+   * Marshalls request from a promise into a simple POJO
+   * of request-specific properties
+   * 
+   * @param {Object} data
+   * @param {String} mimeType
+   * @returns {Object}
+   */
+  get simple() {
+    return Object.keys(this).find(k => k[0] === '_')
+  }
+
 }
 
 /**
