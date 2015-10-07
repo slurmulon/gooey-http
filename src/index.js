@@ -263,8 +263,15 @@ export class HttpRequest extends Promise {
    * @param {String} mimeType
    * @returns {Object}
    */
-  get simple() {
-    return Object.keys(this).find(k => k[0] === '_')
+  get simple(): Object {
+    const simple = {}
+    const keys = Object.keys(this).find(k => k[0] === '_')
+
+    keys.forEach(k => {
+      simple[k.replace('_', '')] = this[k]
+    })
+
+    return simple
   }
 
 }
