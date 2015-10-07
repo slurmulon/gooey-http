@@ -75,6 +75,15 @@ export class HttpRequest extends Promise {
   }
 
   /**
+   * Fetches request's URL
+   * 
+   * @returns {String}
+   */
+  get url(): String {
+    return this._url
+  }
+
+  /**
    * Modifies request URL
    * 
    * @param {String} url
@@ -86,6 +95,15 @@ export class HttpRequest extends Promise {
   }
 
   /**
+   * Fetches request's method
+   * 
+   * @returns {String}
+   */
+  get method(): String {
+    return this._method
+  }
+
+  /**
    * Modifies request method (GET, POST, PUT, etc)
    * 
    * @param {String} method
@@ -94,6 +112,15 @@ export class HttpRequest extends Promise {
   set method(method: String): HttpRequest {
     this._method = method
     return this
+  }
+
+  /**
+   * Fetches request's body
+   * 
+   * @returns {String}
+   */
+  get body(): String {
+    return this._body
   }
 
   /**
@@ -166,7 +193,7 @@ export class HttpRequest extends Promise {
     if (xhr) {
       xhr.open(this.method, url, true)
 
-      // TODO - remaining xhr.events
+      // TODO - support remaining xhr.events
 
       xhr.onload = () => {
         const body = this.mimeify(xhr.responseText, this.type)
@@ -207,7 +234,7 @@ export class HttpRequest extends Promise {
     } else {
       versions.forEach(version => { // TODO - optimize
         try {
-          xhr = xhr || new ActiveXObject(version)
+          if (!xhr) xhr = new ActiveXObject(version)
         } catch (e) {}
       })
     }

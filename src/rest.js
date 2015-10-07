@@ -1,19 +1,28 @@
 import * as http from '../dist/index'
 
-export class Restful extends http.Http {
+export class Restource extends http.Http {
 
-  constructor(slug: String, model: Function) {
+  constructor(slug: String, model: Function, collection: Boolean = true) {
     super() // TODO
 
     this.slug  = slug
     this.model = model
+    this.collection = false
   }
 
-  one() {
+  set one(slug?: String): Restource {
 
   }
 
-  all() {
+  set all(slug?: String): Restource {
+
+  }
+
+  set byId(id: String): Restource {
+
+  }
+
+  set current(id: String): Restource {
 
   }
 
