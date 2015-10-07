@@ -1,4 +1,4 @@
-# :seedling: gooey.http
+# :cactus: gooey.http
 
 > HTTP client-server synchronization module for Gooey
 
