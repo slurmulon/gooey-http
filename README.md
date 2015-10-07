@@ -2,7 +2,7 @@
 
 > HTTP client-server synchronization module for Gooey
 
-`gooey.http` is a module containing several complimentary HTTP-based APIs that leverage Gooey's data synchronization mechanism.
+`gooey.http` is a module containing several HTTP-based APIs that leverage Gooey's data synchronization mechanism.
 
 # Rationale
 
