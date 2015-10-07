@@ -28,7 +28,7 @@ export class Http extends gooey.Service {
     methods.forEach(m => {
       const method = m.toLowerCase()
 
-      this.constructor.prototype[method] = () => new HttpRequest(...arguments)
+      this.constructor.prototype[method] = () => new HttpRequest(method, ...arguments)
     })
   }
 
