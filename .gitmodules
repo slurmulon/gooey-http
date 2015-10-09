@@ -1,3 +1,0 @@
-[submodule "lib/gooey"]
-	path = lib/gooey
-	url = git@github.com:slurmulon/gooey.git
