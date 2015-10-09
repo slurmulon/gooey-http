@@ -1,6 +1,12 @@
 'use strict'
 
-import * as gooey from '../dist/core/index'
+import * as gooey from '../node_modules/gooey/dist/index'
+import XMLHttpRequest from 'xhr2'
+
+/**
+ * URL regex pattern
+ */
+export const urlExp = /\(?(?:(http|https|ftp):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?/
 
 /**
  * Supported transaction methods in HTTP
@@ -16,7 +22,7 @@ export const xhr = {
 }
 
 /**
- * Chainable interface that integrates HttpRequest and HttpResponse
+ * Chainable interface that integrates Request and HttpResponse
  *
  * TODO - handle gooey.Service params
  */
@@ -33,7 +39,7 @@ export class Http extends gooey.Service {
     methods.forEach(m => {
       const method = m.toLowerCase()
 
-      this.constructor.prototype[method] = () => new HttpRequest(method, ...arguments)
+      this.constructor.prototype[method] = () => new Request(method, ...arguments)
     })
   }
 
@@ -41,37 +47,42 @@ export class Http extends gooey.Service {
 
 /**
  * Deferred and chainable XHR-based HTTP request
+ *
+ * Should eventually extend Promise once babel supports this properly:
+ * https://github.com/babel/babel/issues/1120
  */
-export class HttpRequest extends Promise {
+export class Request {
 
   /**
    * Creates a native XHR object and sends request on resolve
    * 
-   * @param {String} method
-   * @param {String} url
+   * @param {String}  method
+   * @param {String}  url
    * @param {?Object} body
    * @param {?Object} headers
+   * @param {?String} query
    * @param {?String} type
    * @param {?String} charset
-   * @returns {HttpRequest}
+   * @returns {Request}
    */
-  constructor(method: String, url: String, body?: Object, headers?: Object, type?: String, charset?: String) {
-    super((resolve, reject) => {
-      if (methods.find(method => method === name)) {
-        resolve(this)
-      } else {
-        reject(`Invalid request, valid method and url required: ${url} | ${method}`)
-      }
-    })
-
+  constructor(method: String, url: String, body?: Object, headers?: Object, query?: String, type?: String, charset?: String) {
     this._xhr = this.createXhr()
-    
-    this.url(url)
-    this.method(method)
-    this.headers(headers)
-    this.body(body)
-    this.type(type)
-    this.charset(charset)
+    this._url = url
+    this._method = method
+
+    if (this._url && this._method) {
+      this.open()
+    }
+  }
+
+  open() {
+    if (!this._url || !this._method) {
+      throw `Invalid request, valid method and url required: ${this._url} | ${this._method}`
+    }
+
+    this._xhr.open(this._method, this._url, true)
+
+    return this
   }
 
   /**
@@ -79,17 +90,29 @@ export class HttpRequest extends Promise {
    * 
    * @returns {String}
    */
-  get url(): String {
-    return this._url
+  get _url(): String {
+    return this.__url
   }
 
   /**
    * Modifies request URL
    * 
    * @param {String} url
-   * @returns {HttpRequest}
    */
-  set url(url: String): HttpRequest {
+  set _url(url: String) {
+    if (urlExp.test(url)) {
+      this.__url = url
+    }
+  }
+
+  /**
+   * Modifies request URL
+   * Chainable alias of `_url`
+   * 
+   * @param {String} url
+   * @returns {Request}
+   */
+  url(url: String): Request {
     this._url = url
     return this
   }
@@ -99,17 +122,29 @@ export class HttpRequest extends Promise {
    * 
    * @returns {String}
    */
-  get method(): String {
-    return this._method
+  get _method(): String {
+    return this.__method
   }
 
   /**
    * Modifies request method (GET, POST, PUT, etc)
    * 
    * @param {String} method
-   * @returns {HttpRequest}
    */
-  set method(method: String): HttpRequest {
+  set _method(method: String): String {
+    if (methods.find(m => m === method)) {
+      this.__method = method
+    }
+  }
+
+  /**
+   * Modifies request method (GET, POST, PUT, etc)
+   * Chainable alias of `_method`
+   * 
+   * @param {String} method
+   * @returns {Request}
+   */
+  method(method: String): Request {
     this._method = method
     return this
   }
@@ -119,42 +154,110 @@ export class HttpRequest extends Promise {
    * 
    * @returns {String}
    */
-  get body(): String {
-    return this._body
+  get _body(): String {
+    return this.__body
   }
 
   /**
    * Sets request body
    * 
-   * @param {Object} data
-   * @returns {HttpRequest}
+   * @param {Object} body
    */
-  set body(data): HttpRequest {
-    this._body = data
+  set _body(body) {
+    this.__body = body
+  }
+
+  /**
+   * Sets request body
+   * Chainable alias of `_body`
+   * 
+   * @param {Object} body
+   * @returns {Request}
+   */
+  body(body): Request {
+    this._body = body
     return this
   }
 
   /**
-   * Modifies a single request header
+   * Fetches request headers
    * 
-   * @param {Object} header {field: value}
-   * @returns {HttpRequest}
+   * @returns {String}
    */
-  set header(header: Object): HttpRequest {
-    const {field, value} = header
-    this._headers[field] = value
+  get _headers(): String {
+    return this.__headers
+  }
+
+  /**
+   * Modifies request headers
+   * 
+   * @param {Object} headers {field: value}
+   */
+  set _headers(headers: Object) {
+    Object.keys(headers).forEach(field => this.header({field, value: headers[field]}))
+  }
+
+  /**
+   * Modifies request header and bind to XHR object
+   * Chainable
+   * 
+   * @param {Object} headers {field: value}
+   * @returns {Request}
+   */
+  header(header: Object): Request {
+    const {field, value}  = header
+    this.__headers = this.__headers || {}
+    this.__headers[field] = value
     this._xhr.setRequestHeader(field, value)
     return this
   }
 
   /**
-   * Modifies request headers based on object
+   * Modifies request headers
+   * Chainable alias of `_headers`
    * 
    * @param {Object} headers {field: value}
-   * @returns {HttpRequest}
+   * @returns {Request}
    */
-  set headers(headers: Object): HttpRequest {
-    Object.keys(headers).forEach(field => this.header({field, value: obj[key]}))
+  headers(headers: Object): Request {
+    this._headers = headers
+    return this
+  }
+
+  /**
+   * Fetches request query parameters
+   * 
+   * @returns {String}
+   */
+  get _query(): String {
+    return this.__query
+  }
+
+  /**
+   * Modifies and encodes query parameters based on object
+   * 
+   * @param {Object} headers {field: value}
+   * @returns {Request}
+   */
+  set _query(params: Object) {
+    let encodedParams = '?'
+
+    Object.keys(params).forEach(key => {
+      encodedParams += (encodedParams !== '?' ? '&' : '') + encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+    })
+
+    this.__query = encodedParams
+  }
+
+  /**
+   * Modifies request URL query parameters based on object
+   * Chainable alias of `_query`
+   * 
+   * @param {Object} headers {field: value}
+   * @returns {Request}
+   */
+  query(params: Object): Request {
+    this._query = params
     return this
   }
 
@@ -163,20 +266,29 @@ export class HttpRequest extends Promise {
    * 
    * @returns {String}
    */
-  get type(): String {
-    return this._type
+  get _type(): String {
+    return this.__type
   }
 
   /**
    * Sets request content type
    * 
    * @param {String} type
-   * @param {String} charset
-   * @returns {HttpRequest}
    */
-  set type(type: String = 'application/text'): HttpRequest {
-    this._type = type
+  set _type(type: String = 'application/text') {
+    this.__type = type
     this.header({field: 'Content-Type', value: `${type}; charset=${this._charset}`})
+  }
+
+  /**
+   * Sets request content type
+   * Chainable alias of `_type`
+   * 
+   * @param {String} type
+   * @returns {Request}
+   */
+  type(type: String = 'application/text'): Request {
+    this._type = type
     return this
   }
 
@@ -185,17 +297,27 @@ export class HttpRequest extends Promise {
    * 
    * @returns {String}
    */
-  get charset(): String {
-    return this._charset
+  get _charset(): String {
+    return this.__charset || 'UTF-8'
   }
 
   /**
    * Sets request character set
    * 
    * @param {String} charset
-   * @returns {HttpRequest}
    */
-  set charset(charset: String = 'UTF-8'): HttpRequest {
+  set _charset(charset: String = 'UTF-8') {
+    // TODO - validate for proper charsets
+    this.__charset = charset
+  }
+
+  /**
+   * Sets request character set (chainable)
+   * 
+   * @param {String} charset
+   * @returns {Request}
+   */
+  charset(charset: String): Request {
     this._charset = charset
     return this
   }
@@ -203,38 +325,41 @@ export class HttpRequest extends Promise {
   /**
    * Creates a native XHR object and sends request on resolve
    * 
-   * @returns {HttpRequest}
+   * @returns {Promise}
    */
-  send(): HttpRequest {
-    const xhr = this._xhr
+  send(): Promise {
+    return new Promise((resolve, reject) => {
+      const xhr = this._xhr
+      let uri   = this._url
 
-    if (xhr) {
-      xhr.open(this.method, url, true)
-
-      // TODO - support remaining xhr.events
-
-      xhr.onload = () => {
-        const body = this.mimeify(xhr.responseText, this.type)
-
-        if (xhr.status >= 200 && xhr.status < 400) {
-          super.resolve(body)
-        } else {
-          super.reject(body)
+      if (xhr) {
+        if (!xhr.OPEN) {
+          this.open()
         }
+
+        xhr.onload = () => {
+          const response = ('response' in xhr) ? xhr.response : xhr.responseText;
+
+          if (xhr.status >= 200 && xhr.status < 400) {
+            this._response = {success: response}
+            resolve(response)
+          } else {
+            this._response = {error: response}
+            reject(response)
+          }
+        }
+
+        xhr.onerror = (e) => reject(e)
+
+        // TODO - support remaining xhr.events
+        // TODO - automatically make content-type application/json when object
+
+        // ship it
+        xhr.send(this._body)
+      } else {
+        reject(`Cannot perform XHR, failed to determine compatible version`)
       }
-
-      xhr.onerror = (e) => super.reject(e)
-
-      Object.keys(headers).forEach(key => {
-        request.setRequestHeader(key, this.headers[key])
-      })
-      
-      xhr.send(this.body)
-    } else {
-      super.reject(`Cannot perform XHR, failed to determine compatible version`)
-    }
-
-    return this
+    })
   }
 
   // set attach()
@@ -267,7 +392,7 @@ export class HttpRequest extends Promise {
    * @param {String} mimeType
    * @returns {Object}
    */
-  mimeify(data, mimeType: String = 'application/text') {
+  mimeify(data, mimeType: String = 'application/text'): Object {
     return {
       'application/json': JSON.parse(data),
     }[mimeType] || data
@@ -297,10 +422,10 @@ export class HttpRequest extends Promise {
 /**
  * Deferred and chainable XHR-based HTTP response
  */
-export class HttpResponse extends Promise {
+export class Response {
   
-  constructor(request: HttpRequest) {
-    super() // TODO
+  constructor(request: Request) {
+
   }
 
 }

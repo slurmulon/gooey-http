@@ -17,19 +17,60 @@ Although this issue is prevalant in SPAs, the mechanism driving the problem is a
 
 Read more on [how Gooey identifies and addresses the core problem](https://github.com/slurmulon/gooey#concrete).
 
-# HTTP
+# Install
+
+1. gooey (core module)
+
+  > $ git clone git@github.com:slurmulon/gooey.git
+
+  > $ cd gooey
+
+  > $ npm link
+
+2. gooey-http
+
+  > $ git clone git@github.com:slurmulon/gooey-http.git
+
+  > $ cd gooey-http
+
+  > $ npm link gooey
+
+  > $ npm install
+
+# Interfaces
+
+## HTTP
 
 `gooey.http`
 
-A light-weight interface for performing HTTP transactions
+A tiny chainable interface for performing HTTP transactions
 
-# REST
+```
+const login = (username, password) => {
+  return new http.Request('POST', 'http://127.0.0.1/token')
+    .body({username, password})
+    .header('cache-control', 'no-cache')
+    .send()
+    .then(token => {
+      User.byToken(token).then(user => user.select())
+    })
+    .catch(err => {
+      if (err.status === 401) {
+        Notify.error('Invalid credentials, please try again')
+      } else {
+        Notify.error('Unknown error, please try again later')
+      }
+    })
+})
+```
+
+## REST
 
 `gooey.http.rest`
 
 Wraps `gooey.http` with a pragmatic interface for modeling Restful Web API resources.
 
-# Hypermedia
+## Hypermedia
 
 `gooey.http.hyper`
 

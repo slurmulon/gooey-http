@@ -25,6 +25,9 @@
   },
   "devDependencies": {
     "babel": "^5.8.21",
+    "chai": "^3.3.0",
+    "chai-as-promised": "^5.1.0",
+    "chai-spies": "^0.7.1",
     "gulp": "~3.9.0",
     "gulp-babel": "~5.1.0",
     "gulp-shell": "~0.4.2",
@@ -36,6 +39,7 @@
   },
   "dependencies": {
     "harmony-reflect": "^1.4.0",
-    "jsonpath": "~0.1.8"
+    "jsonpath": "~0.1.8",
+    "xhr2": "^0.1.3"
   }
 }
