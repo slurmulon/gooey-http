@@ -32,14 +32,14 @@ export class Http extends gooey.Service {
    * @param {Object} proxies request / response middlewares
    */
   constructor(proxies?: Object = {}) {
-    super() // TODO
+    super('http') // TODO
 
     this.proxies = proxies
 
     methods.forEach(m => {
       const method = m.toLowerCase()
 
-      this.constructor.prototype[method] = () => new Request(method, ...arguments)
+      this[method] = () => new Request(method, ...arguments)
     })
   }
 
@@ -66,8 +66,13 @@ export class Request {
    * @returns {Request}
    */
   constructor(method: String, url: String, body?: Object, headers?: Object, query?: String, type?: String, charset?: String) {
-    this._url = url
-    this._method = method
+    this._url     = url
+    this._method  = method
+    this._body    = body
+    this._headers = headers
+    this._query   = query
+    this._type    = type
+    this._charset = charset
   }
 
   /**
@@ -179,9 +184,11 @@ export class Request {
    * @param {Object} headers {field: value}
    */
   set _headers(headers: Object) {
-    Object.keys(headers).forEach(field =>
-      this.header({field, value: headers[field]})
-    )
+    if (headers instanceof Object) {
+      Object.keys(headers).forEach(field =>
+        this.header({field, value: headers[field]})
+      )
+    }
   }
 
   /**
@@ -192,9 +199,12 @@ export class Request {
    * @returns {Request}
    */
   header(header: Object): Request {
-    const {field, value}  = header
-    this.__headers = this.__headers || {}
-    this.__headers[field] = value
+    if (header instanceof Object) {
+      const {field, value}  = header
+      this.__headers = this.__headers || {}
+      this.__headers[field] = value
+    }
+
     return this
   }
 
@@ -228,9 +238,11 @@ export class Request {
   set _query(params: Object) {
     let encodedParams = '?'
 
-    Object.keys(params).forEach(key => {
-      encodedParams += (encodedParams !== '?' ? '&' : '') + encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
-    })
+    if (params) {
+      Object.keys(params).forEach(key => {
+        encodedParams += (encodedParams !== '?' ? '&' : '') + encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+      })
+    }
 
     this.__query = encodedParams
   }
@@ -273,7 +285,7 @@ export class Request {
    * @param {String} type
    * @returns {Request}
    */
-  type(type: String = 'application/text'): Request {
+  type(type: String): Request {
     this._type = type
     return this
   }
@@ -422,3 +434,9 @@ export class Response {
   }
 
 }
+
+
+/**
+ * POJO-style alias of Request
+ */
+export const request = ({name, url, body, headers, query, type, charset}) => new Request(...arguments) 

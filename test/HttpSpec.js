@@ -13,6 +13,17 @@ describe('Http', () => {
     it('should be a defined method', () => {
       http.Http.constructor.should.be.a('function')
     })
+
+    it('should bind own functions for each HTTP method', () => {
+      const testHttp = new http.Http()
+
+      http.methods.forEach(method => {
+        const methodProp = method.toLowerCase()
+
+        testHttp.should.have.ownProperty(methodProp)
+        testHttp[methodProp].should.be.a('function')
+      })
+    })
   })
 
 })
@@ -48,12 +59,13 @@ describe('Request', () => {
 
     it('should bind headers before sending request', () => {
       const testHeaders = {'X-Test-1': 'foo', 'X-Test-2': 'bar'}
+      const expHeaders  = {'Content-Type': 'application/text; charset=UTF-8'}
 
       stubRequest
         .headers(testHeaders)
         .send()
 
-      stubRequest._headers.should.deep.equals(testHeaders)
+      stubRequest._headers.should.deep.equals(Object.assign(expHeaders, testHeaders))
     })
 
     it('should bind URL encoded query parameters before sending request', () => {
@@ -67,7 +79,7 @@ describe('Request', () => {
       stubRequest._query.should.deep.equals(urlEncHeaders)
     })
 
-    it('should set Content-Type before sending', () => {
+    it('should set provided Content-Type before sending', () => {
       const testType = 'application/json'
       const expType  = `${testType}; charset=UTF-8`
 
@@ -80,6 +92,18 @@ describe('Request', () => {
         stubRequest._headers['Content-Type'].should.equal(expType)
     })
 
+    it('should set default Content-Type before sending if nothing can be assumed', () => {
+      const expType = 'application/text'
+
+      stubRequest._type.should.equal(expType)
+      stubRequest._headers['Content-Type'].should.contain(expType)
+      stubRequest.send()
+    })
+
+    xit('should safely assume and set Content-Type based on body before sending', () => {
+      // TODO
+    })
+
     it('should send request with the provided body if an XHR object exists', () => {
       const xhrSpy   = chai.spy(stubRequest.createXhr())
       const testBody = {foo: 'bar', 'baz': {bar: 'foo'}}
@@ -87,7 +111,10 @@ describe('Request', () => {
       stubRequest
         .body(testBody)
         .send(xhrSpy)
-        .then(() => xhrSpy.should.have.been.called.with(testBody))
+        .then(() => {
+          xhrSpy.open.should.have.been.called.with
+          xhrSpy.send.should.have.been.called.with(testBody)
+        })
         .should.not.be.rejected
     })
 
@@ -108,7 +135,7 @@ describe('Request', () => {
     })
   })
 
-  describe('get url', () => {
+  describe('get _url', () => {
     it('should be a defined getter', () => {
       stubRequest._url.should.be.a('string')
     })
@@ -118,7 +145,7 @@ describe('Request', () => {
     })
   })
 
-  describe('set url', () => {
+  describe('set _url', () => {
     it('should be a setter that uses valid URLs', () => {
       stubRequest._url = 'http://127.1.1.1'
       stubRequest._url.should.equal('http://127.1.1.1')
@@ -129,6 +156,15 @@ describe('Request', () => {
         stubRequest._url = invalid
         stubRequest._url.should.not.equal(invalid)
       })
+    })
+  })
+
+  describe('url', () => {
+    it('should be a chainable alias to `set _url`', () => {
+      const testUrl = 'http://127.1.1.1'
+
+      expect(stubRequest.url(testUrl)).to.eql(stubRequest)
+      stubRequest._url.should.equal(testUrl)
     })
   })
 
@@ -154,52 +190,63 @@ describe('Request', () => {
     })
   })
 
-  xdescribe('get body', () => {
-    it('should be a defined method', () => {
+  describe('method', () => {
+    it('should be a chainable alias to `set _method`', () => {
+      const testMethod = 'POST'
 
+      expect(stubRequest.method(testMethod)).to.eql(stubRequest)
+      stubRequest._method.should.equal(testMethod)
     })
   })
 
-  xdescribe('set body', () => {
-    it('should be a defined method', () => {
+  xdescribe('get _body', () => {
+    it('should be a defined getter', () => {
+      stubRequest._body.should.be.a('string')
+    })
 
+  })
+
+  xdescribe('set _body', () => {
+
+  })
+
+  describe('body', () => {
+    it('should be a chainable alias to `set _body`', () => {
+      const testBody = {foo: 'bar'}
+
+      expect(stubRequest.body(testBody)).to.eql(stubRequest)
+      stubRequest._body.should.equal(testBody)
     })
   })
 
-  xdescribe('get header', () => {
-    it('should be a defined method', () => {
-
+  xdescribe('get _header', () => {
+    it('should be a defined getter', () => {
+      stubRequest._header.should.be.a('string')
     })
   })
 
-  xdescribe('set headers', () => {
-    it('should be a defined method', () => {
+  xdescribe('set _headers', () => {
 
+  })
+
+  describe('get _type', () => {
+    it('should be a defined getter', () => {
+      stubRequest._type.should.be.a('string')
     })
   })
 
-  xdescribe('get type', () => {
-    it('should be a defined method', () => {
+  xdescribe('set _type', () => {
 
+  })
+
+  xdescribe('get _charset', () => {
+    it('should be a defined getter', () => {
+      stubRequest._charset.should.be.a('string')
     })
   })
 
-  xdescribe('set type', () => {
-    it('should be a defined method', () => {
+  xdescribe('set _charset', () => {
 
-    })
-  })
-
-  xdescribe('get charset', () => {
-    it('should be a defined method', () => {
-
-    })
-  })
-
-  xdescribe('set charset', () => {
-    it('should be a defined method', () => {
-
-    })
   })
 
   xdescribe('mimeify', () => {
