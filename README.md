@@ -39,12 +39,11 @@ A tiny chainable interface for performing HTTP transactions.
 ```
 const login = (username, password) => {
   return new http.Request('POST', 'http://127.0.0.1/token')
-    .body({username, password})
     .header('cache-control', 'no-cache')
+    .body({username, password})
     .send()
-    .then(token => {
-      User.byToken(token).then(user => user.select())
-    })
+    .then(token => User.byToken(token))
+    .then(user => user.select())
     .catch(err => {
       if (err.status === 401) {
         Notify.error('Invalid credentials, please try again')
