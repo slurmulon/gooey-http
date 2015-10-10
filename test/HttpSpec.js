@@ -135,12 +135,14 @@ describe('Request', () => {
     })
   })
 
+  // URL
+
   describe('get _url', () => {
     it('should be a defined getter', () => {
       stubRequest._url.should.be.a('string')
     })
 
-    it('should return the internal property __url', () => {
+    it('should return the internal property `__url`', () => {
       stubRequest._url.should.equal(stubRequest.__url)
     })
   })
@@ -168,9 +170,15 @@ describe('Request', () => {
     })
   })
 
+  // Method
+
   describe('get method', () => {
     it('should be a defined getter', () => {
       stubRequest._method.should.be.a('string')
+    })
+
+    it('should return the internal property `__method`', () => {
+      stubRequest._method.should.equal(stubRequest.__method)
     })
   })
 
@@ -199,15 +207,30 @@ describe('Request', () => {
     })
   })
 
-  xdescribe('get _body', () => {
+  // Body
+
+  describe('get _body', () => {
     it('should be a defined getter', () => {
-      stubRequest._body.should.be.a('string')
+      stubRequest._body = {}
+      stubRequest._body.should.be.a('object')
     })
 
+    it('should be a defined getter', () => {
+      stubRequest._body = {}
+      stubRequest._body.should.be.a('object')
+    })
+
+    it('should return the internal property `__body`', () => {
+      stubRequest._body = {}
+      stubRequest._body.should.equal(stubRequest.__body)
+    })
   })
 
-  xdescribe('set _body', () => {
-
+  describe('set _body', () => {
+    it('should update the internal property __body', () => {
+      stubRequest._body = {foo: 'bar'}
+      stubRequest._body.should.equal(stubRequest.__body)
+    })
   })
 
   describe('body', () => {
@@ -219,15 +242,23 @@ describe('Request', () => {
     })
   })
 
-  xdescribe('get _header', () => {
+  // Headers
+
+  describe('get _headers', () => {
     it('should be a defined getter', () => {
-      stubRequest._header.should.be.a('string')
+      stubRequest._headers.should.be.a('object')
+    })
+
+    it('should be a defined getter', () => {
+      stubRequest._headers.should.be.a('object')
     })
   })
 
   xdescribe('set _headers', () => {
 
   })
+
+  // Content-Type
 
   describe('get _type', () => {
     it('should be a defined getter', () => {
@@ -239,6 +270,8 @@ describe('Request', () => {
 
   })
 
+  // Character Set
+
   xdescribe('get _charset', () => {
     it('should be a defined getter', () => {
       stubRequest._charset.should.be.a('string')
@@ -248,6 +281,8 @@ describe('Request', () => {
   xdescribe('set _charset', () => {
 
   })
+
+  // Utility
 
   xdescribe('mimeify', () => {
     it('should be a defined method', () => {

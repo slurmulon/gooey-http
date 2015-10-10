@@ -153,7 +153,7 @@ export class Request {
    * 
    * @param {Object} body
    */
-  set _body(body) {
+  set _body(body: Object) {
     this.__body = body
   }
 
@@ -164,8 +164,9 @@ export class Request {
    * @param {Object} body
    * @returns {Request}
    */
-  body(body): Request {
+  body(body: Object): Request {
     this._body = body
+
     return this
   }
 
@@ -174,7 +175,7 @@ export class Request {
    * 
    * @returns {String}
    */
-  get _headers(): String {
+  get _headers(): Object {
     return this.__headers
   }
 
@@ -185,9 +186,7 @@ export class Request {
    */
   set _headers(headers: Object) {
     if (headers instanceof Object) {
-      Object.keys(headers).forEach(field =>
-        this.header({field, value: headers[field]})
-      )
+      Object.assign(this.__headers, headers)
     }
   }
 
@@ -195,15 +194,13 @@ export class Request {
    * Modifies request header and bind to XHR object
    * Chainable
    * 
-   * @param {Object} headers {field: value}
+   * @param {String} field
+   * @param {String} value
    * @returns {Request}
    */
-  header(header: Object): Request {
-    if (header instanceof Object) {
-      const {field, value}  = header
-      this.__headers = this.__headers || {}
-      this.__headers[field] = value
-    }
+  header(field: String, value: String): Request {
+    this.__headers = this.__headers || {}
+    this.__headers[field] = value
 
     return this
   }
@@ -217,6 +214,7 @@ export class Request {
    */
   headers(headers: Object): Request {
     this._headers = headers
+
     return this
   }
 
@@ -238,7 +236,7 @@ export class Request {
   set _query(params: Object) {
     let encodedParams = '?'
 
-    if (params) {
+    if (params instanceof Object) {
       Object.keys(params).forEach(key => {
         encodedParams += (encodedParams !== '?' ? '&' : '') + encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
       })
@@ -256,6 +254,7 @@ export class Request {
    */
   query(params: Object): Request {
     this._query = params
+
     return this
   }
 
@@ -275,7 +274,7 @@ export class Request {
    */
   set _type(type: String = 'application/text') {
     this.__type = type
-    this.header({field: 'Content-Type', value: `${type}; charset=${this._charset}`})
+    this.header('Content-Type', `${type}; charset=${this._charset}`)
   }
 
   /**
@@ -287,6 +286,7 @@ export class Request {
    */
   type(type: String): Request {
     this._type = type
+
     return this
   }
 
@@ -318,6 +318,7 @@ export class Request {
    */
   charset(charset: String): Request {
     this._charset = charset
+
     return this
   }
 
