@@ -66,23 +66,8 @@ export class Request {
    * @returns {Request}
    */
   constructor(method: String, url: String, body?: Object, headers?: Object, query?: String, type?: String, charset?: String) {
-    this._xhr = this.createXhr()
     this._url = url
     this._method = method
-
-    if (this._url && this._method) {
-      this.open()
-    }
-  }
-
-  open() {
-    if (!this._url || !this._method) {
-      throw `Invalid request, valid method and url required: ${this._url} | ${this._method}`
-    }
-
-    this._xhr.open(this._method, this._url, true)
-
-    return this
   }
 
   /**
@@ -107,7 +92,7 @@ export class Request {
 
   /**
    * Modifies request URL
-   * Chainable alias of `_url`
+   * Chainable alias of `set _url`
    * 
    * @param {String} url
    * @returns {Request}
@@ -139,7 +124,7 @@ export class Request {
 
   /**
    * Modifies request method (GET, POST, PUT, etc)
-   * Chainable alias of `_method`
+   * Chainable alias of `set _method`
    * 
    * @param {String} method
    * @returns {Request}
@@ -169,7 +154,7 @@ export class Request {
 
   /**
    * Sets request body
-   * Chainable alias of `_body`
+   * Chainable alias of `set _body`
    * 
    * @param {Object} body
    * @returns {Request}
@@ -194,7 +179,9 @@ export class Request {
    * @param {Object} headers {field: value}
    */
   set _headers(headers: Object) {
-    Object.keys(headers).forEach(field => this.header({field, value: headers[field]}))
+    Object.keys(headers).forEach(field =>
+      this.header({field, value: headers[field]})
+    )
   }
 
   /**
@@ -208,13 +195,12 @@ export class Request {
     const {field, value}  = header
     this.__headers = this.__headers || {}
     this.__headers[field] = value
-    this._xhr.setRequestHeader(field, value)
     return this
   }
 
   /**
    * Modifies request headers
-   * Chainable alias of `_headers`
+   * Chainable alias of `set _headers`
    * 
    * @param {Object} headers {field: value}
    * @returns {Request}
@@ -251,7 +237,7 @@ export class Request {
 
   /**
    * Modifies request URL query parameters based on object
-   * Chainable alias of `_query`
+   * Chainable alias of `set _query`
    * 
    * @param {Object} headers {field: value}
    * @returns {Request}
@@ -282,7 +268,7 @@ export class Request {
 
   /**
    * Sets request content type
-   * Chainable alias of `_type`
+   * Chainable alias of `set _type`
    * 
    * @param {String} type
    * @returns {Request}
@@ -312,7 +298,8 @@ export class Request {
   }
 
   /**
-   * Sets request character set (chainable)
+   * Sets request character set
+   * Chainable alias of `set _charset`
    * 
    * @param {String} charset
    * @returns {Request}
@@ -323,22 +310,22 @@ export class Request {
   }
 
   /**
-   * Creates a native XHR object and sends request on resolve
+   * Prepares and sends a request via provided xhr object
    * 
+   * @param {XMLHttpRequest|ActiveXObject} xhr
    * @returns {Promise}
    */
-  send(): Promise {
+  send(xhr = this.createXhr()): Promise {
     return new Promise((resolve, reject) => {
-      const xhr = this._xhr
-      let uri   = this._url
-
       if (xhr) {
-        if (!xhr.OPEN) {
-          this.open()
+        if (!this._url || !this._method) {
+          throw `Invalid request, valid method and url required: ${this._url} | ${this._method}`
         }
 
+        // TODO - support remaining xhr.events
+
         xhr.onload = () => {
-          const response = ('response' in xhr) ? xhr.response : xhr.responseText;
+          const response = ('response' in xhr) ? xhr.response : xhr.responseText
 
           if (xhr.status >= 200 && xhr.status < 400) {
             this._response = {success: response}
@@ -351,10 +338,16 @@ export class Request {
 
         xhr.onerror = (e) => reject(e)
 
-        // TODO - support remaining xhr.events
+        let uri = this._url + this._query
+
+        Object.keys(this._headers).forEach(field => {
+          xhr.setRequestHeader(field, this._headers[field])
+        })
+
         // TODO - automatically make content-type application/json when object
 
         // ship it
+        xhr.open(this._method, uri, true)
         xhr.send(this._body)
       } else {
         reject(`Cannot perform XHR, failed to determine compatible version`)
@@ -406,7 +399,7 @@ export class Request {
    * @param {String} mimeType
    * @returns {Object}
    */
-  get simple(): Object {
+  get basic(): Object {
     const simple = {}
     const keys = Object.keys(this).find(k => k[0] === '_')
 

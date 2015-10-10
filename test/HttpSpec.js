@@ -30,16 +30,9 @@ describe('Request', () => {
       http.Request.constructor.should.be.a('function')
     })
 
-    it('should create a private instance of an XHR object', () => {
-      stubRequest._xhr.should.be.an('object')
-
-      http.xhr.events.forEach(e => {
-        stubRequest._xhr.should.have.ownProperty(e)
-      })
-    })
-
-    it('should invalidate requests with an invalid url or method', () => {
-      http.Request.should.throw()
+    it('should set url and method if provided', () => {
+      stubRequest._url.should.equal('http://127.0.0.1')
+      stubRequest._method.should.equal('GET')
     })
 
   })
@@ -88,12 +81,12 @@ describe('Request', () => {
     })
 
     it('should send request with the provided body if an XHR object exists', () => {
-      const xhrSpy   = chai.spy(stubRequest._xhr.send)
+      const xhrSpy   = chai.spy(stubRequest.createXhr())
       const testBody = {foo: 'bar', 'baz': {bar: 'foo'}}
 
       stubRequest
         .body(testBody)
-        .send()
+        .send(xhrSpy)
         .then(() => xhrSpy.should.have.been.called.with(testBody))
         .should.not.be.rejected
     })
