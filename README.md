@@ -62,6 +62,20 @@ Wraps `gooey.http` with a pragmatic interface for modeling Restful Web API resou
 
 Integrates with Gooey's PubSub mechanism to help synchronize states between the Restful API and its clients. 
 
+```
+const user = new http.RestService({
+  base: '/v1/',
+  name: 'user',
+  model: self => {
+    self.fullName = () => `${self.firstName} ${self.lastName}`
+
+    self.changePassword = (newPassword) => {
+      return self.put(`password`)
+    }
+  }
+})
+```
+
 ## Hypermedia
 
 `gooey.http.hyper`

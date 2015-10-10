@@ -1,3 +1,5 @@
+'use strict'
+
 import * as http from '../dist/index'
 import * as gooey from '../node_modules/gooey/dist/index'
 
@@ -36,24 +38,31 @@ export class Rest extends http.Http {
 
 export class RestService extends gooey.Service {
 
-  constructor(name: String, model: Function, parent?: gooey.Service, children?: Array) {
-    super(...arguments)
+  constructor(base: String, name: String, model: Function, parent: Service, children: Array) {
+    super(...Array.from(arguments).slice())
 
     this.resource = new Rest(name, model)
     this.selected = {entity: null}
+
+    // bind versions of each HTTP method that publish results
+    http.methods.forEach(m => {
+      const method = m.toLowerCase()
+
+      this[method] = () => {
+        this.resource[method](`${baseUrl}/${name}`, ...arguments)
+            .finally(response => this.update(response))
+      }
+    })
   }
 
-  // TODO - add subscription
   by(id: String): Promise {
     return this.resource.one(id).get()
   }
 
-  // TODO - add subscription
   all(): Promise {
     return this.resource.all().get()
   }
 
-  // TODO - add subscription
   current(): Promise {
     const entityId = this.selected.entity
 
@@ -66,3 +75,5 @@ export class RestService extends gooey.Service {
     return this.current()
   }
 }
+
+export const service = ({name, baseUrl, model, parent})
