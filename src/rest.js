@@ -3,35 +3,36 @@
 import * as http from '../dist/http'
 import * as gooey from '../node_modules/gooey/dist/index'
 
-export class Rest extends http.Http {
+export class Resource extends http.Http {
 
-  constructor(slug: String, model: Function, collection: Boolean = true) {
-    super() // TODO
+  constructor(baseUrl: String, slug: String, collection: Boolean = true) {
+    super(baseUrl) // TODO
 
+    this.baseUrl = baseUrl
     this.slug = slug
     this.collection = collection
   }
 
-  one(id: String): RestResource {
+  one(id: String): Resource {
     const resource = this.copy()
 
-    resource._slug = id
-    resource._collection = false
+    resource.slug = id
+    resource.collection = false
 
     return resource
   }
 
-  all(): RestResource {
+  all(): Resource {
     const resource = this.copy()
 
-    resource._slug = id
-    resource._collection = true
+    resource.slug = id
+    resource.collection = true
 
     return resource
   }
 
-  copy(): RestResource {
-    return new RestResource(this.slug, this.model, this.collection)
+  copy(): Resource {
+    return new Resource(this.baseUrl, this.slug, this.collection)
   }
 
 }

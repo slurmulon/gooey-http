@@ -23,17 +23,14 @@ export const xhr = {
 
 /**
  * Chainable interface that integrates Request and HttpResponse
- *
- * TODO - handle gooey.Service params
  */
-export class Http extends gooey.Service {
+export class Http {
 
   /**
-   * @param {Object} proxies request / response middlewares
+   * @param {?String} baseUrl optional base URL to prepend to all HTTP request URLs
+   * @param {?Object} proxies request and response middlewares
    */
-  constructor(proxies?: Object = {}) {
-    super('http') // TODO
-
+  constructor(baseUrl?: String, proxies?: Object = {}) {
     this.proxies = proxies
 
     methods.forEach(m => {
