@@ -117,9 +117,7 @@ describe('Request', () => {
     })
 
     it('should reject request if no internal XHR object exists', () => {
-      stubRequest.__xhr = null
-
-      stubRequest.send().should.be.rejected
+      stubRequest.send(null).should.be.rejected
     })
   })
 
@@ -294,8 +292,7 @@ describe('Request', () => {
       stubRequest._headers.should.deep.contain({'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'})
     })
 
-    // FIXME - undefined, wut?
-    xit('should be chainable', () => {
+    it('should be chainable', () => {
       expect(stubRequest.form()).to.eql(stubRequest)
     })
   })

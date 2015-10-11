@@ -2,6 +2,7 @@
 
 import * as gooey from '../node_modules/gooey/dist/index'
 import XMLHttpRequest from 'xhr2'
+import FormData from 'form-data'
 
 /**
  * URL regex pattern
@@ -31,6 +32,7 @@ export class Http {
    * @param {?Object} proxies request and response middlewares
    */
   constructor(baseUrl?: String, proxies?: Object = {}) {
+    this.baseUrl = baseUrl // TODO
     this.proxies = proxies
 
     methods.forEach(m => {
@@ -178,7 +180,7 @@ export class Request {
   }
 
   /**
-   * Fetches request headers
+   * Fetches request headers, appending Content-Type headers as appropriate
    * 
    * @returns {String}
    */
@@ -270,15 +272,33 @@ export class Request {
   }
 
   /**
-   * Sets request as a form using query parameters
+   * Sets request as a form
    * 
    * @param {Object} form
-   * @param {String} type
    * @returns {Request}
    */
-  form(form: Object, type: String = 'application/x-www-form-urlencoded'): Request {
-    this._query = form
-    this._type  = type
+  form(form: Object): Request {
+    const method = this._method
+
+    if (method === 'POST' || method === 'PUT') {
+      const formData = new FormData()
+
+      if (form instanceof Object) {
+        Object.keys(form).forEach(field => {
+          formData.append(field, form[field])
+        })
+      }
+
+      this._type = 'multipart/form-data'
+      this._body = formData
+    } else if (this._method === 'GET') {
+      this._type = 'application/x-www-form-urlencoded'
+      this._query = form
+    } else {
+      throw `Forms are not supported via ${method}`
+    }
+
+    return this
   }
 
   /**
@@ -364,10 +384,12 @@ export class Request {
           const response = ('response' in xhr) ? xhr.response : xhr.responseText
 
           if (xhr.status >= 200 && xhr.status < 400) {
-            this._response = {success: response}
+            this._response = {success: response} // TODO - 
+
             resolve(response)
           } else {
-            this._response = {error: response}
+            this._response = {error: response, status: xhr.status}
+
             reject(response)
           }
         }
@@ -389,6 +411,7 @@ export class Request {
         }
 
         // ship it
+        // TODO support - username: String?, password: String?
         xhr.open(this._method, uri, true)
         xhr.send(this._body)
       } else {
