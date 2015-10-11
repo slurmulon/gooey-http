@@ -393,7 +393,7 @@ export class Request {
   /**
    * Builds a native XHR object based on the browser version
    * 
-   * @returns {Object} native XHR object
+   * @returns {XMLHttpRequest|ActiveXObject} native XHR object
    */
   createXhr(): Object {
     let xhr = null
@@ -433,15 +433,13 @@ export class Request {
    * of request-specific properties
    * 
    * @param {Object} data
-   * @param {String} mimeType
-   * @returns {Object}
    */
-   simple(): Object {
+  simple(): Object {
     const obj  = {}
-    const keys = Object.keys(this).find(k => k[0] === '_')
+    const keys = Object.keys(this).map(k => k.replace('__', ''))
 
     keys.forEach(k => {
-      obj[k.replace('_', '')] = this[k]
+      obj[k] = this[k]
     })
 
     return obj
@@ -453,15 +451,3 @@ export class Request {
  * POJO-style alias of Request
  */
 export const request = ({name, url, body, headers, query, type, charset}) => new Request(...arguments) 
-
-
-/**
- * Deferred and chainable XHR-based HTTP response
- */
-export class Response {
-  
-  constructor(request: Request) {
-
-  }
-
-}

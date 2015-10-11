@@ -1,4 +1,5 @@
 import * as http from '../dist/http'
+
 import chai from 'chai'
 import chaiSpies from 'chai-spies'
 import blanket from 'blanket'
@@ -108,10 +109,10 @@ describe('Request', () => {
         .body(testBody)
         .send(xhrSpy)
         .then(() => {
-          xhrSpy.open.should.have.been.called.with
+          xhrSpy.open.should.have.been.called
           xhrSpy.send.should.have.been.called.with(testBody)
         })
-        .should.not.be.rejected
+        .should.be.fulfilled
     })
 
     it('should reject request if no internal XHR object exists', () => {
@@ -126,8 +127,8 @@ describe('Request', () => {
       stubRequest.createXhr.should.be.a('function')
     })
 
-    xit('should return a native XHR object based on browser version', () => {
-
+    it('should return an instance of XMLHttpRequest if it exists', () => {
+      stubRequest.createXhr().should.be.instanceof(XMLHttpRequest)
     })
   })
 
@@ -337,9 +338,18 @@ describe('Request', () => {
     xit('should properly marshall data based on its mimeType')
   })
 
-  xdescribe('get simple', () => {
+  describe('get simple', () => {
     it('should be a defined method', () => {
       stubRequest.simple.should.be.a('function')
+    })
+
+    it('should contain functions for method, body, query, type, headers and charset', () => {
+      const simple = stubRequest.simple();
+      const funcs  = ['body', 'headers', 'query', 'type', 'charset']
+
+      funcs.forEach(f => {
+        simple[f].should.be.a('function')
+      })
     })
 
   })
