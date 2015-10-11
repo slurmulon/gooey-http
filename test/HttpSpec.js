@@ -1,4 +1,5 @@
 import * as http from '../dist/http'
+import XMLHttpRequest from 'xhr2'
 
 import chai from 'chai'
 import chaiSpies from 'chai-spies'
@@ -278,6 +279,27 @@ describe('Request', () => {
     })
   })
 
+  // Query Params
+
+  // Form
+
+  describe('form', () => {
+    it('should be a defined method', () => {
+      stubRequest.form.should.be.an('function')
+    })
+
+    it('should accept an Object and convert it into a "form" via query params', () => {
+      stubRequest.form({foo: 'bar', baz: 'foo'})
+      stubRequest._query = '?foo=bar&baz=foo'
+      stubRequest._headers.should.deep.contain({'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'})
+    })
+
+    // FIXME - undefined, wut?
+    xit('should be chainable', () => {
+      expect(stubRequest.form()).to.eql(stubRequest)
+    })
+  })
+
   // Content-Type
 
   describe('get _type', () => {
@@ -300,6 +322,16 @@ describe('Request', () => {
     it('should be a setter that uses `application/json` by default', () => {
       stubRequest._type = undefined
       stubRequest._type.should.equal('application/json')
+    })
+  })
+
+  describe('type', () => {
+    it('should be a chainable alias to `set _type`', () => {
+      const testType = 'ASCII'
+      const typeRes  = stubRequest.type(testType)
+
+      expect(typeRes).to.eql(stubRequest)
+      stubRequest._type.should.equal(testType)
     })
   })
 
@@ -328,6 +360,15 @@ describe('Request', () => {
     })
   })
 
+  describe('charset', () => {
+    it('should be a chainable alias to `set _charset`', () => {
+      const testCharset = 'UTF-8'
+
+      expect(stubRequest.charset(testCharset)).to.eql(stubRequest)
+      stubRequest._charset.should.equal(testCharset)
+    })
+  })
+
   // Utility
 
   describe('mimeify', () => {
@@ -344,10 +385,11 @@ describe('Request', () => {
     })
 
     it('should contain functions for method, body, query, type, headers and charset', () => {
-      const simple = stubRequest.simple();
+      const simple = stubRequest.simple()
       const funcs  = ['body', 'headers', 'query', 'type', 'charset']
 
       funcs.forEach(f => {
+        simple.should.have.ownProperty(f)
         simple[f].should.be.a('function')
       })
     })

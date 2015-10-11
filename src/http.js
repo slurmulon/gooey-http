@@ -273,6 +273,18 @@ export class Request {
   }
 
   /**
+   * Sets request as a form using query parameters
+   * 
+   * @param {Object} form
+   * @param {String} type
+   * @returns {Request}
+   */
+  form(form: Object, type: String = 'application/x-www-form-urlencoded'): Request {
+    this._query = form
+    this._type  = type
+  }
+
+  /**
    * Fetches request content type
    * 
    * @returns {String}
@@ -424,12 +436,12 @@ export class Request {
     return {
       'text/plain': data instanceof Object ? JSON.parse(data) : data,
       'application/json': data instanceof String ? JSON.parse(data) : data,
-      'application/www-form-urlencoded': encodeURIComponent(data)
+      'application/x-www-form-urlencoded': encodeURIComponent(data)
     }[mimeType] || data
   }
 
   /**
-   * Marshalls request from a promise into a simple POJO
+   * Marshalls request into a simple POJO
    * of request-specific properties
    * 
    * @param {Object} data
