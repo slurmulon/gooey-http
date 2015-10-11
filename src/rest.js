@@ -78,4 +78,4 @@ export class RestService extends gooey.Service {
   }
 }
 
-export const service = ({name, baseUrl, model, parent})
+export const service = ({name, baseUrl, model, parent}) => new Service(...arguments)

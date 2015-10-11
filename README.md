@@ -2,7 +2,7 @@
 
 > HTTP client-server synchronization module for Gooey
 
-`gooey.http` is a module containing several HTTP-based APIs that leverage Gooey's state synchronization mechanism.
+`gooey.http` is a module containing several HTTP-based APIs that leverage Gooey's data synchronization mechanism.
 
 # Problem
 
@@ -60,13 +60,13 @@ const login = (username, password) => {
 
 Wraps `gooey.http` with a pragmatic interface for modeling Restful Web API resources.
 
-Integrates with Gooey's PubSub mechanism to help synchronize states between the Restful API and its clients.
+Integrates with Gooey's PubSub mechanism to help synchronize data and states between the Restful API and its clients.
 
-The following example of performs a `PUT` to `/v1/user/:id/password`, automatically updating
+The following example performs a `PUT` to `/v1/user/:id/password`, automatically updating
 the current resource state and publishing the change to all dependent services:
 
 ```
-const user = new http.RestService({
+const user = new http.rest.service({
   base: '/v1/',
   name: 'user',
   model: self => {
@@ -74,15 +74,3 @@ const user = new http.RestService({
   }
 })
 ```
-
-## Hypermedia
-
-`gooey.http.hyper`
-
-Wraps `gooey.http.rest` with a robust interface for modelng Restful Hypermedia APIs.
-
-Specifications:
-
-- Siren
-- HAL
-- Collection+JSON
