@@ -291,7 +291,7 @@ export class Request {
 
       this._type = 'multipart/form-data'
       this._body = formData
-    } else if (this._method === 'GET') {
+    } else if (method === 'GET') {
       this._type = 'application/x-www-form-urlencoded'
       this._query = form
     } else {
