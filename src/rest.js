@@ -44,12 +44,14 @@ export class RestService extends gooey.Service {
     this.resource = new Rest(name, model)
     this.selected = {entity: null}
 
-    // bind versions of each HTTP method that publish results
+    // bind versions of each HTTP method that update (and thus publish) results
     http.methods.forEach(m => {
       const method = m.toLowerCase()
+      const resId  = this.selected.entity
+      const resUrl = resId ? `${baseUrl}/${resId}/${name}` : `${baseUrl}/${name}`
 
       this[method] = () => {
-        this.resource[method](`${baseUrl}/${name}`, ...arguments)
+        this.resource[method](absUrl, ...arguments)
             .finally(response => this.update(response))
       }
     })

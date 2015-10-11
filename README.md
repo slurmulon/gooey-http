@@ -60,18 +60,17 @@ const login = (username, password) => {
 
 Wraps `gooey.http` with a pragmatic interface for modeling Restful Web API resources.
 
-Integrates with Gooey's PubSub mechanism to help synchronize states between the Restful API and its clients. 
+Integrates with Gooey's PubSub mechanism to help synchronize states between the Restful API and its clients.
+
+The following example of performs a `PUT` to `/v1/user/:id/password`, automatically updating
+the current resource state and publishing the change to all dependent services:
 
 ```
 const user = new http.RestService({
   base: '/v1/',
   name: 'user',
   model: self => {
-    self.fullName = () => `${self.firstName} ${self.lastName}`
-
-    self.changePassword = (newPassword) => {
-      return self.put(`password`)
-    }
+    self.changePassword = (oldPass, newPass) => self.put('password', {oldPass, newPass})
   }
 })
 ```
