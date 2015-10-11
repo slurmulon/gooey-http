@@ -1,6 +1,6 @@
 'use strict'
 
-import * as http from '../dist/index'
+import * as http from '../dist/http'
 import * as gooey from '../node_modules/gooey/dist/index'
 
 export class Rest extends http.Http {

@@ -1,4 +1,4 @@
-import * as http from '../dist/index'
+import * as http from '../dist/http'
 import chai from 'chai'
 import chaiSpies from 'chai-spies'
 
