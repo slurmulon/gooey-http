@@ -59,13 +59,12 @@ describe('Request', () => {
 
     it('should bind headers before sending request', () => {
       const testHeaders = {'X-Test-1': 'foo', 'X-Test-2': 'bar'}
-      const expHeaders  = {'Content-Type': 'application/text; charset=UTF-8'}
 
       stubRequest
         .headers(testHeaders)
         .send()
 
-      stubRequest._headers.should.deep.equals(Object.assign(expHeaders, testHeaders))
+      stubRequest.__headers.should.deep.equals(testHeaders)
     })
 
     it('should bind URL encoded query parameters before sending request', () => {
@@ -93,15 +92,11 @@ describe('Request', () => {
     })
 
     it('should set default Content-Type before sending if nothing can be assumed', () => {
-      const expType = 'application/text'
+      const expType = 'application/json'
 
       stubRequest._type.should.equal(expType)
       stubRequest._headers['Content-Type'].should.contain(expType)
       stubRequest.send()
-    })
-
-    xit('should safely assume and set Content-Type based on body before sending', () => {
-      // TODO
     })
 
     it('should send request with the provided body if an XHR object exists', () => {
@@ -118,7 +113,7 @@ describe('Request', () => {
         .should.not.be.rejected
     })
 
-    it('should reject request if no XHR object exists', () => {
+    it('should reject request if no internal XHR object exists', () => {
       stubRequest.__xhr = null
 
       stubRequest.send().should.be.rejected
@@ -151,6 +146,11 @@ describe('Request', () => {
     it('should be a setter that uses valid URLs', () => {
       stubRequest._url = 'http://127.1.1.1'
       stubRequest._url.should.equal('http://127.1.1.1')
+    })
+
+    it('should update the internal property `__url`', () => {
+      stubRequest._url = 'http://127.1.1.1'
+      stubRequest._url.should.equal(stubRequest.__url)
     })
 
     it('should be a setter that ignores invalid URLs', () => {
@@ -215,21 +215,26 @@ describe('Request', () => {
       stubRequest._body.should.be.a('object')
     })
 
-    it('should be a defined getter', () => {
-      stubRequest._body = {}
-      stubRequest._body.should.be.a('object')
-    })
-
     it('should return the internal property `__body`', () => {
-      stubRequest._body = {}
+      stubRequest.__body = {}
       stubRequest._body.should.equal(stubRequest.__body)
     })
   })
 
   describe('set _body', () => {
-    it('should update the internal property __body', () => {
-      stubRequest._body = {foo: 'bar'}
+    it('should update the internal property `__body`', () => {
+      stubRequest._body = {}
       stubRequest._body.should.equal(stubRequest.__body)
+    })
+
+    it('should also set `_type` to "application/json" if body is an Object', () => {
+      stubRequest._body = {}
+      stubRequest._type.should.equal('application/json')
+    })
+
+    it('should also set `_type` to "application/text" if body is a String', () => {
+      stubRequest._body = 'foo'
+      stubRequest._type.should.equal('text/plain')
     })
   })
 
@@ -246,16 +251,29 @@ describe('Request', () => {
 
   describe('get _headers', () => {
     it('should be a defined getter', () => {
-      stubRequest._headers.should.be.a('object')
+      stubRequest._headers.should.be.an('object')
     })
 
-    it('should be a defined getter', () => {
-      stubRequest._headers.should.be.a('object')
+    it('should return the internal property `__headers`', () => {
+      stubRequest.__headers = {'X-Field': 'Value'}
+      stubRequest._headers.should.contain(stubRequest.__headers)
+    })
+
+    it('should return headers with a `Content-Type` field if a one is defined', () => {
+      const testHeaders = {'X-Field': 'Value'}
+
+      stubRequest._type = 'text/plain'
+      stubRequest._headers = testHeaders
+      stubRequest._headers.should.deep.equal(Object.assign({'Content-Type': 'text/plain; charset=UTF-8'}, testHeaders))
     })
   })
 
-  xdescribe('set _headers', () => {
-
+  describe('set _headers', () => {
+    it('should be a setter that replaces the value of __headers', () => {
+      stubRequest.__type = undefined // so content-type headers don't appear
+      stubRequest._headers = {'X-Field': 'Value'}
+      stubRequest._headers.should.equal(stubRequest.__headers)
+    })
   })
 
   // Content-Type
@@ -264,35 +282,64 @@ describe('Request', () => {
     it('should be a defined getter', () => {
       stubRequest._type.should.be.a('string')
     })
+
+    it('should return the internal property `__type`', () => {
+      stubRequest.__type = 'ASCII'
+      stubRequest._type.should.equal(stubRequest.__type)
+    })
   })
 
-  xdescribe('set _type', () => {
+  describe('set _type', () => {
+    it('should be a setter that replaces the value of __type', () => {
+      stubRequest._type = 'application/json'
+      stubRequest._type.should.equal(stubRequest.__type)
+    })
 
+    it('should be a setter that uses `application/json` by default', () => {
+      stubRequest._type = undefined
+      stubRequest._type.should.equal('application/json')
+    })
   })
 
   // Character Set
 
-  xdescribe('get _charset', () => {
+  describe('get _charset', () => {
     it('should be a defined getter', () => {
       stubRequest._charset.should.be.a('string')
     })
+
+    it('should return the internal property `__charset`', () => {
+      stubRequest.__charset = 'ASCII'
+      stubRequest._charset.should.contain(stubRequest.__charset)
+    })
   })
 
-  xdescribe('set _charset', () => {
+  describe('set _charset', () => {
+    it('should be a setter that replaces the value of __charset', () => {
+      stubRequest._charset = 'ASCII'
+      stubRequest._charset.should.equal(stubRequest.__charset)
+    })
 
+    it('should be a setter that uses `UTF-8` by default', () => {
+      stubRequest._charset = undefined
+      stubRequest._charset.should.equal('UTF-8')
+    })
   })
 
   // Utility
 
-  xdescribe('mimeify', () => {
+  describe('mimeify', () => {
     it('should be a defined method', () => {
-
+      stubRequest.mimeify.should.be.a('function')
     })
+
+    xit('should properly marshall data based on its mimeType')
   })
 
   xdescribe('get simple', () => {
     it('should be a defined method', () => {
-
+      stubRequest.simple.should.be.a('function')
     })
+
   })
 })

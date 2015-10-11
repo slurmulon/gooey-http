@@ -149,22 +149,32 @@ export class Request {
   }
 
   /**
-   * Sets request body
+   * Sets request body and forces Content-Type for Objects and Strings
    * 
-   * @param {Object} body
+   * @param {Object|String} body
    */
-  set _body(body: Object) {
+  set _body(body) {
     this.__body = body
+
+    if (body) {
+      if (body instanceof Object) {
+        this._type = 'application/json'
+      }
+
+      if (body.constructor === String) {
+        this._type = 'text/plain'
+      }
+    }
   }
 
   /**
    * Sets request body
    * Chainable alias of `set _body`
    * 
-   * @param {Object} body
+   * @param {Object|String} body
    * @returns {Request}
    */
-  body(body: Object): Request {
+  body(body): Request {
     this._body = body
 
     return this
@@ -176,6 +186,10 @@ export class Request {
    * @returns {String}
    */
   get _headers(): Object {
+    if (this._type) {
+      return Object.assign({'Content-Type': `${this._type}; charset=${this._charset}`}, this.__headers)
+    }
+
     return this.__headers
   }
 
@@ -186,7 +200,7 @@ export class Request {
    */
   set _headers(headers: Object) {
     if (headers instanceof Object) {
-      Object.assign(this.__headers, headers)
+      this.__headers = headers
     }
   }
 
@@ -272,7 +286,7 @@ export class Request {
    * 
    * @param {String} type
    */
-  set _type(type: String = 'application/text') {
+  set _type(type: String = 'application/json') {
     this.__type = type
     this.header('Content-Type', `${type}; charset=${this._charset}`)
   }
@@ -351,13 +365,19 @@ export class Request {
 
         xhr.onerror = (e) => reject(e)
 
-        let uri = this._url + this._query
+        let uri = this._url
 
-        Object.keys(this._headers).forEach(field => {
-          xhr.setRequestHeader(field, this._headers[field])
-        })
+        // set headers
+        if (this._headers instanceof Object) {
+          Object.keys(this._headers).forEach(field => {
+            xhr.setRequestHeader(field, this._headers[field])
+          })
+        }
 
-        // TODO - automatically make content-type application/json when object
+        // set query parameters
+        if (this._query instanceof String) {
+          uri += this._query
+        }
 
         // ship it
         xhr.open(this._method, uri, true)
@@ -393,14 +413,18 @@ export class Request {
 
   /**
    * Marshalls data into mimeType
+   *
+   * TODO - text/html, image/*, video/*, pdf/*, etc
    * 
-   * @param {Object} data
+   * @param {Object|String} data
    * @param {String} mimeType
    * @returns {Object}
    */
-  mimeify(data, mimeType: String = 'application/text'): Object {
+  mimeify(data, mimeType: String = this._type): Object {
     return {
-      'application/json': JSON.parse(data),
+      'text/plain': data instanceof Object ? JSON.parse(data) : data,
+      'application/json': data instanceof String ? JSON.parse(data) : data,
+      'application/www-form-urlencoded': encodeURIComponent(data)
     }[mimeType] || data
   }
 
@@ -412,18 +436,24 @@ export class Request {
    * @param {String} mimeType
    * @returns {Object}
    */
-  get basic(): Object {
-    const simple = {}
+   simple(): Object {
+    const obj  = {}
     const keys = Object.keys(this).find(k => k[0] === '_')
 
     keys.forEach(k => {
-      simple[k.replace('_', '')] = this[k]
+      obj[k.replace('_', '')] = this[k]
     })
 
-    return simple
+    return obj
   }
 
 }
+
+/**
+ * POJO-style alias of Request
+ */
+export const request = ({name, url, body, headers, query, type, charset}) => new Request(...arguments) 
+
 
 /**
  * Deferred and chainable XHR-based HTTP response
@@ -435,9 +465,3 @@ export class Response {
   }
 
 }
-
-
-/**
- * POJO-style alias of Request
- */
-export const request = ({name, url, body, headers, query, type, charset}) => new Request(...arguments) 
