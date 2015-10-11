@@ -1,6 +1,7 @@
 import * as http from '../dist/http'
 import chai from 'chai'
 import chaiSpies from 'chai-spies'
+import blanket from 'blanket'
 
 chai.use(chaiSpies)
 
