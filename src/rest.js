@@ -5,7 +5,7 @@ import * as gooey from '../node_modules/gooey/dist/index'
 
 /**
  * Represents a single Restful API resource
- * Supports both singleton and collection resource entities.
+ * Supports both singleton and collection resource entities
  */
 export class Resource extends http.Http {
 
@@ -25,6 +25,12 @@ export class Resource extends http.Http {
     this.collection = collection
   }
 
+  /**
+   * Copies resource and turns it into a singleton
+   *
+   * @param id {String} id identifier of resource entity
+   * @returns {Resource}
+   */
   one(id: String): Resource {
     const resource = this.copy()
 
@@ -34,6 +40,12 @@ export class Resource extends http.Http {
     return resource
   }
 
+  /**
+   * Copies resource and turns it into a collection
+   *
+   * @param id {String} id identifier of resource entity
+   * @returns {Resource}
+   */
   all(): Resource {
     const resource = this.copy()
 
@@ -43,6 +55,11 @@ export class Resource extends http.Http {
     return resource
   }
 
+  /**
+   * Creates an copy of this resource in its current state
+   *
+   * @returns {Resource}
+   */
   copy(): Resource {
     return new Resource(this.base, this.slug, this.collection)
   }
@@ -134,4 +151,7 @@ export class Service extends gooey.Service {
   }
 }
 
+/**
+ * POJO-style alias of Service
+ */
 export const service = ({name, model, base, parent, children, pattern}) => new RestService(...arguments)
