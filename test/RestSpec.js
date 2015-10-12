@@ -11,7 +11,6 @@ const should = chai.should()
 const expect = chai.expect
 
 describe('Resource', () => {
-
   let stubResource
 
   beforeEach(() => {
@@ -63,5 +62,30 @@ describe('Resource', () => {
       // copy.should.deep.equal(stubResource) // FIXME - wut?
     })
   })
+})
 
+describe('Service', () => {
+  let stubResource
+
+  beforeEach(() => {
+    stubResource = new rest.Service('http://localhost/v1', 'foo', model => {
+      model.bar = true
+    })
+  })
+
+  describe('constructor', () => {
+    it('should be a defined method', () => {
+      stubResource.constructor.should.be.a('function')
+    })
+
+    it('should create and wrap an instance of Resource', () => {
+      stubResource.resource.should.be.instanceof(rest.Resource)
+    })
+
+    it('should establish the default selected entity as null', () => {
+      stubResource.selected.should.be.an('object')
+      stubResource.selected.should.have.ownProperty('entity')
+      expect(stubResource.selected.entity).to.be.null
+    })
+  })
 })
