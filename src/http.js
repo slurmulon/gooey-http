@@ -18,8 +18,8 @@ export const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEA
  * Meta-information on XHR interface
  */
 export const xhr = {
-  versions : [2,3,4,5].map(v => `MSXML2.XmlHttp.${v}.0`).concat('Microsoft.XmlHttp'),
-  events   : ['onloadstart', 'onprogress', 'onabort', 'onerror', 'onload', 'ontimeout', 'onloadend']
+  msVersions : [2,3,4,5].map(v => `MSXML2.XmlHttp.${v}.0`).concat('Microsoft.XmlHttp'),
+  events     : ['onloadstart', 'onprogress', 'onabort', 'onerror', 'onload', 'ontimeout', 'onloadend']
 }
 
 /**
@@ -433,7 +433,7 @@ export class Request {
     if (!Object.is(XMLHttpRequest, undefined)) {
       xhr = new XMLHttpRequest()
     } else {
-      versions.forEach(version => { // TODO - optimize
+      xhr.msVersions.forEach(version => {
         try {
           if (!xhr) xhr = new ActiveXObject(version)
         } catch (e) {}
