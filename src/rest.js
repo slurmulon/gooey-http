@@ -2,6 +2,7 @@
 
 import * as http from '../dist/http'
 import * as gooey from '../node_modules/gooey/dist/index'
+import _ from 'lodash'
 
 /**
  * Represents a single Restful API resource
@@ -78,19 +79,24 @@ export class Service extends gooey.Service {
    * @param {Function} model a container for business logic that's parallel to a Rest API resource
    * @param {?String} base optional base URL of the API (primarily for root/high-level services)
    * @param {?Service} parent service that this resource inherits data and/or state from
-   * @param {?Service} children services that are dependent upon this resource's data and/or state
-   * @param {?Service} pattern JsonPath pattern that's used to automatically subscribe service to a parent resource's sub-state
+   * @param {?String|Function} rel JsonPath pattern that describe's relationship to parent. Also used to automatically subscribe service to a parent resource's sub-state
    */
-  constructor(name: String, model: Function, base?: String, parent?: Service, children?: Array, pattern?: Function) {
-    super(...Array.from(arguments).slice())
+  constructor(name: String, model: Function, base?: String, parent?: Service, rel?: Function) {
+    super(name, model, parent)
 
     this.resource = new Resource(base, name, model) // TODO - base
     this.selected = {entity: null}
 
-    // if a parent and pattern generator are provided, create a subscription
+    const relation = _.once(() => rel instanceof Function ? rel(super.state) : rel)
+
+    // when a parent and relationship pattern generator (rel) are provided, create a subscription
     // to the parent with and invoke pattern generator with current state
-    if (parent && pattern) {
-      super.subscribe(pattern(super.state), this.update)
+    if (parent) {
+      if (relation) {
+        this.subscribe(relation, this.update)
+      } else {
+        this.subscribe(`$.${name}`, this.update)
+      }
     }
 
     // bind versions of each HTTP method that update (and thus publish) results
@@ -154,4 +160,4 @@ export class Service extends gooey.Service {
 /**
  * POJO-style alias of Service
  */
-export const service = ({name, model, base, parent, children, pattern}) => new RestService(...arguments)
+export const service = ({name, model, base, parent, children, rel}) => new Service(name, model, base, parent, rel)

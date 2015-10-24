@@ -42,6 +42,7 @@
     "form-data": "^0.2.0",
     "harmony-reflect": "^1.4.0",
     "jsonpath": "~0.1.8",
+    "lodash": "^3.10.1",
     "xhr2": "^0.1.3"
   }
 }

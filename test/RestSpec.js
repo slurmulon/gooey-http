@@ -87,5 +87,16 @@ describe('Service', () => {
       stubResource.selected.should.have.ownProperty('entity')
       expect(stubResource.selected.entity).to.be.null
     })
+
+    it('should automatically subscribe to a parent Service', () => {
+      const scripResource = new rest.service({
+        base   : 'http://localhost/v1',
+        name   : 'subscribed',
+        parent : stubResource
+      })
+
+      scripResource.subscriptions.should.not.be.empty
+      scripResource.subscriptions[0].service.should.equal(scripResource)
+    })
   })
 })
