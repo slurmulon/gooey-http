@@ -162,6 +162,8 @@ export class Request {
 
       if (body.constructor === String) {
         this._type = 'text/plain'
+
+        // FIXME - check for URL param via regex (x-www-form-urlencoded)
       }
     }
   }

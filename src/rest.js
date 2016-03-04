@@ -86,7 +86,7 @@ export class Service extends gooey.Service {
     this.resource = new Resource(base, name, model) // TODO - base
     this.selected = {entity: null}
 
-    const relation = () => (rel instanceof Function ? rel(super.state) : rel)
+    const relation = rel instanceof Function ? rel(super.state) : rel
 
     // when a parent and relationship pattern generator (rel) are provided, create a subscription
     // to the parent with and invoke pattern generator with current state
