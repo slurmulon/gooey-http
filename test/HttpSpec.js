@@ -1,4 +1,4 @@
-import * as http from '../dist/http'
+import * as http from '../lib/http'
 import XMLHttpRequest from 'xhr2'
 
 import chai from 'chai'
@@ -288,7 +288,7 @@ describe('Request', () => {
 
     it('should accept an Object and convert it into a "form" via query params', () => {
       stubRequest.form({foo: 'bar', baz: 'foo'})
-      stubRequest._query = '?foo=bar&baz=foo'
+      stubRequest._body = '?foo=bar&baz=foo'
       stubRequest._headers.should.deep.contain({'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'})
     })
 

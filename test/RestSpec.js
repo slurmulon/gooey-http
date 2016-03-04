@@ -1,4 +1,4 @@
-import * as rest from '../dist/rest'
+import * as rest from '../lib/rest'
 import XMLHttpRequest from 'xhr2'
 
 import chai from 'chai'
