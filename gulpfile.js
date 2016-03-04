@@ -6,12 +6,12 @@ var gulp  = require('gulp'),
 
 gulp.task('default', ['compile'])
 
-gulp.task('clean', shell.task(['rm -rf dist']))
+gulp.task('clean', shell.task(['rm -rf lib']))
 
 gulp.task('compile', ['clean'], function() {
   return gulp.src(['*.js'], {cwd: 'src', read: true})
   .pipe(babel())
-  .pipe(gulp.dest('dist'))
+  .pipe(gulp.dest('lib'))
 })
 
 gulp.task('test', ['compile'], shell.task(['mocha --reporter nyan --compilers js:mocha-traceur test/']))
