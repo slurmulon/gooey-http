@@ -1,6 +1,6 @@
 'use strict'
 
-import * as gooey from '../node_modules/gooey/dist/index'
+import * as gooey from '../node_modules/gooey/lib/index'
 import XMLHttpRequest from 'xhr2'
 import FormData from 'form-data'
 

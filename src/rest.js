@@ -1,8 +1,7 @@
 'use strict'
 
-import * as http from '../dist/http'
-import * as gooey from '../node_modules/gooey/dist/index'
-import _ from 'lodash'
+import * as http from '../lib/http'
+import * as gooey from '../node_modules/gooey/lib/index'
 
 /**
  * Represents a single Restful API resource
@@ -87,7 +86,7 @@ export class Service extends gooey.Service {
     this.resource = new Resource(base, name, model) // TODO - base
     this.selected = {entity: null}
 
-    const relation = _.once(() => rel instanceof Function ? rel(super.state) : rel)
+    const relation = () => (rel instanceof Function ? rel(super.state) : rel)
 
     // when a parent and relationship pattern generator (rel) are provided, create a subscription
     // to the parent with and invoke pattern generator with current state
