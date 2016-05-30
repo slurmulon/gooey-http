@@ -120,7 +120,7 @@ export class Request {
    * 
    * @param {String} method
    */
-  set _method(method: String): String {
+  set _method(method: String) {
     if (methods.find(m => m === method)) {
       this.__method = method
     }
