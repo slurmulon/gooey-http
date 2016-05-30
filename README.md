@@ -1,6 +1,6 @@
-# :cactus: gooey.http
+# gooey.http
 
-> HTTP client-server synchronization module for Gooey
+> :cactus: HTTP client-server synchronization module for Gooey
 
 `gooey.http` is a module containing several HTTP-based APIs that leverage Gooey's data synchronization mechanism.
 
@@ -10,21 +10,9 @@ Read about the [challenges of synchronizing state in SPAs how Gooey tries to add
 
 # Install
 
-1. gooey (core module)
-
-  > $ git clone git@github.com:slurmulon/gooey.git
-
-  > $ cd gooey
-
-  > $ npm link
-
-2. gooey-http
-
   > $ git clone git@github.com:slurmulon/gooey-http.git
 
   > $ cd gooey-http
-
-  > $ npm link gooey
 
   > $ npm install
 
@@ -34,7 +22,7 @@ Read about the [challenges of synchronizing state in SPAs how Gooey tries to add
 
 `gooey.http`
 
-A tiny chainable interface for performing HTTP transactions.
+A tiny chainable interface for performing HTTP transactions backed by Gooey data synchronization
 
 ```
 const login = (username, password) => {
@@ -61,6 +49,8 @@ const login = (username, password) => {
 Wraps `gooey.http` with a pragmatic interface for modeling Restful Web API resources.
 
 Integrates with Gooey's PubSub mechanism to help synchronize data and states between the Restful API and its clients.
+
+The interface also supports easy managent of a resource's current context (i.e. a user's currently selected entities).
 
 The following example performs a `PUT` to `/v1/user/:id/password`, automatically updating
 the current resource state and publishing the change to all dependent services:
