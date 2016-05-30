@@ -61,9 +61,17 @@ export class Request {
    * @param {?String} charset
    * @returns {Request}
    */
-  constructor(method: string, url: string, body?, headers?: Object, query?: string, type?: string, charset?: string) {
-    this._url     = url
+  constructor(
+    method   : string,
+    url      : string,
+    body?,
+    headers? : Object,
+    query?   : string,
+    type?    : string,
+    charset? : string
+  ) {
     this._method  = method
+    this._url     = url
     this._body    = body
     this._headers = headers
     this._query   = query
