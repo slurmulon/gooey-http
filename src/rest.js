@@ -1,7 +1,7 @@
 'use strict'
 
 import * as http from '../lib/http'
-import * as gooey from '../node_modules/gooey/lib/index'
+import * as gooey from 'gooey-core'
 
 /**
  * Represents a single Restful API resource
@@ -17,7 +17,7 @@ export class Resource extends http.Http {
    * @param {?Service} children services that are dependent upon this resource's data and/or state
    * @param {?Service} pattern JsonPath pattern that's used to automatically subscribe service to a parent resource's sub-state
    */
-  constructor(base: String, slug: String, collection: Boolean = true) {
+  constructor(base: string, slug: string, collection: Boolean = true) {
     super(base) // TODO
 
     this.base = base
@@ -31,7 +31,7 @@ export class Resource extends http.Http {
    * @param id {String} id identifier of resource entity
    * @returns {Resource}
    */
-  one(id: String): Resource {
+  one(id: string): Resource {
     const resource = this.copy()
 
     resource.slug = id
@@ -75,13 +75,14 @@ export class Service extends gooey.Service {
 
   /**
    * @param {String} name unique name mapping to a Rest API resource
-   * @param {Function} model a container for business logic that's parallel to a Rest API resource
    * @param {?String} base optional base URL of the API (primarily for root/high-level services)
+   * @param {*} state value to use as the canonical state of the Service
+   * @param {Function} model a container for business logic that's parallel to a Rest API resource
    * @param {?Service} parent service that this resource inherits data and/or state from
-   * @param {?String|Function} rel JsonPath pattern that describe's relationship to parent. Also used to automatically subscribe service to a parent resource's sub-state
+   * @param {?String|Function} rel pattern that describe's relationship to parent. Also used to automatically subscribe service to a parent resource's sub-state
    */
-  constructor(name: String, model: Function, base?: String, parent?: Service, rel?: Function) {
-    super(name, model, parent)
+  constructor(name: string, base?: string, state, model: Function, parent?: Service, rel?: Function) {
+    super(name, state, model, parent)
 
     this.resource = new Resource(base, name, model) // TODO - base
     this.selected = {entity: null}
@@ -118,7 +119,7 @@ export class Service extends gooey.Service {
    * @param {String} id identifier ot API resource entity
    * @returns {Promise} resolves with a new resource based on entity state in API
    */
-  by(id: String): Promise {
+  by(id: string): Promise {
     return this.resource.one(id).get()
   }
 
@@ -149,7 +150,7 @@ export class Service extends gooey.Service {
    *
    * @returns {Promise} resolves with a new singleton entity resource based on user's selection if it exists
    */
-  select(id: String): Promise {
+  select(id: string): Promise {
     this.selected.entity = id
 
     return this.current()
@@ -159,4 +160,4 @@ export class Service extends gooey.Service {
 /**
  * POJO-style alias of Service
  */
-export const service = ({name, model, base, parent, children, rel}) => new Service(name, model, base, parent, rel)
+export const service = ({name, state, model, base, parent, children, rel}) => new Service(name, base, state, model, parent, children, rel)

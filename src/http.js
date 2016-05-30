@@ -1,13 +1,10 @@
 'use strict'
 
-import * as gooey from '../node_modules/gooey/lib/index'
+// import * as gooey from '../node_modules/gooey/lib/index'
+import * as gooey from 'gooey-core'
+import urlRegex from 'url-regex'
 import XMLHttpRequest from 'xhr2'
 import FormData from 'form-data'
-
-/**
- * URL regex pattern
- */
-export const urlExp = /\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?/
 
 /**
  * Supported transaction methods in HTTP
@@ -31,7 +28,7 @@ export class Http {
    * @param {?String} baseUrl optional base URL to prepend to all HTTP request URLs
    * @param {?Object} proxies request and response middlewares
    */
-  constructor(baseUrl?: String, proxies?: Object = {}) {
+  constructor(baseUrl?: string, proxies?: Object = {}) {
     this.baseUrl = baseUrl // TODO
     this.proxies = proxies
 
@@ -57,14 +54,14 @@ export class Request {
    * 
    * @param {String}  method
    * @param {String}  url
-   * @param {?Object} body
+   * @param {?String|Object} body
    * @param {?Object} headers
    * @param {?String} query
    * @param {?String} type
    * @param {?String} charset
    * @returns {Request}
    */
-  constructor(method: String, url: String, body?: Object, headers?: Object, query?: String, type?: String, charset?: String) {
+  constructor(method: string, url: string, body?, headers?: Object, query?: string, type?: string, charset?: string) {
     this._url     = url
     this._method  = method
     this._body    = body
@@ -79,7 +76,7 @@ export class Request {
    * 
    * @returns {String}
    */
-  get _url(): String {
+  get _url(): string {
     return this.__url
   }
 
@@ -88,8 +85,8 @@ export class Request {
    * 
    * @param {String} url
    */
-  set _url(url: String) {
-    if (urlExp.test(url)) {
+  set _url(url: string) {
+    if (urlRegex().test(url)) {
       this.__url = url
     }
   }
@@ -101,7 +98,7 @@ export class Request {
    * @param {String} url
    * @returns {Request}
    */
-  url(url: String): Request {
+  url(url: string): Request {
     this._url = url
     return this
   }
@@ -111,7 +108,7 @@ export class Request {
    * 
    * @returns {String}
    */
-  get _method(): String {
+  get _method(): string {
     return this.__method
   }
 
@@ -120,7 +117,7 @@ export class Request {
    * 
    * @param {String} method
    */
-  set _method(method: String) {
+  set _method(method: string) {
     if (methods.find(m => m === method)) {
       this.__method = method
     }
@@ -133,7 +130,7 @@ export class Request {
    * @param {String} method
    * @returns {Request}
    */
-  method(method: String): Request {
+  method(method: string): Request {
     this._method = method
     return this
   }
@@ -143,7 +140,7 @@ export class Request {
    * 
    * @returns {String}
    */
-  get _body(): String {
+  get _body(): string {
     return this.__body
   }
 
@@ -213,7 +210,7 @@ export class Request {
    * @param {String} value
    * @returns {Request}
    */
-  header(field: String, value: String): Request {
+  header(field: string, value: string): Request {
     this.__headers = this.__headers || {}
     this.__headers[field] = value
 
@@ -238,7 +235,7 @@ export class Request {
    * 
    * @returns {String}
    */
-  get _query(): String {
+  get _query(): string {
     return this.__query
   }
 
@@ -264,10 +261,10 @@ export class Request {
    * Modifies request URL query parameters based on object
    * Chainable alias of `set _query`
    * 
-   * @param {Object} headers {field: value}
+   * @param {Object|String} headers {field: value}
    * @returns {Request}
    */
-  query(params: Object): Request {
+  query(params): Request {
     this._query = params
 
     return this
@@ -308,7 +305,7 @@ export class Request {
    * 
    * @returns {String}
    */
-  get _type(): String {
+  get _type(): string {
     return this.__type
   }
 
@@ -317,7 +314,7 @@ export class Request {
    * 
    * @param {String} type
    */
-  set _type(type: String = 'application/json') {
+  set _type(type: string = 'application/json') {
     this.__type = type
     this.header('Content-Type', `${type}; charset=${this._charset}`)
   }
@@ -329,7 +326,7 @@ export class Request {
    * @param {String} type
    * @returns {Request}
    */
-  type(type: String): Request {
+  type(type: string): Request {
     this._type = type
 
     return this
@@ -340,7 +337,7 @@ export class Request {
    * 
    * @returns {String}
    */
-  get _charset(): String {
+  get _charset(): string {
     return this.__charset || 'UTF-8'
   }
 
@@ -349,7 +346,7 @@ export class Request {
    * 
    * @param {String} charset
    */
-  set _charset(charset: String = 'UTF-8') {
+  set _charset(charset: string = 'UTF-8') {
     // TODO - validate for proper charsets
     this.__charset = charset
   }
@@ -361,7 +358,7 @@ export class Request {
    * @param {String} charset
    * @returns {Request}
    */
-  charset(charset: String): Request {
+  charset(charset: string): Request {
     this._charset = charset
 
     return this
@@ -413,7 +410,7 @@ export class Request {
         }
 
         // ship it
-        // TODO support - username: String?, password: String?
+        // TODO support - username: string?, password: string?
         xhr.open(this._method, uri, true)
         xhr.send(this._body)
       } else {
@@ -454,7 +451,7 @@ export class Request {
    * @param {String} mimeType
    * @returns {Object}
    */
-  mimeify(data, mimeType: String = this._type): Object {
+  mimeify(data, mimeType: string = this._type): Object {
     return {
       'text/plain': data instanceof Object ? JSON.parse(data) : data,
       'application/json': data instanceof String ? JSON.parse(data) : data,

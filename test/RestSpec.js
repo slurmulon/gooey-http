@@ -68,7 +68,7 @@ describe('Service', () => {
   let stubResource
 
   beforeEach(() => {
-    stubResource = new rest.Service('http://localhost/v1', 'foo', model => {
+    stubResource = new rest.Service('http://localhost/v1', 'foo', undefined, (model) => {
       model.bar = true
     })
   })
