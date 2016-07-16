@@ -1,7 +1,5 @@
 'use strict'
 
-// import * as gooey from '../node_modules/gooey/lib/index'
-import * as gooey from 'gooey-core'
 import urlRegex from 'url-regex'
 import XMLHttpRequest from 'xhr2'
 import FormData from 'form-data'
@@ -418,7 +416,6 @@ export class Request {
         }
 
         // ship it
-        // TODO support - username: string?, password: string?
         xhr.open(this._method, uri, true)
         xhr.send(this._body)
       } else {
@@ -489,4 +486,4 @@ export class Request {
 /**
  * POJO-style alias of Request
  */
-export const request = ({name, url, body, headers, query, type, charset}) => new Request(...arguments) 
+export const request = ({ name, url, body, headers, query, type, charset }) => new Request(name, url, body, headers, query, type, charset)

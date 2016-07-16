@@ -1,6 +1,6 @@
 'use strict'
 
-import * as http from '../lib/http'
+import * as http  from '../lib/http'
 import * as gooey from 'gooey-core'
 
 /**
@@ -92,11 +92,7 @@ export class Service extends gooey.Service {
     // when a parent and relationship pattern generator (rel) are provided, create a subscription
     // to the parent with and invoke pattern generator with current state
     if (parent) {
-      if (relation) {
-        this.subscribe(relation, this.update)
-      } else {
-        this.subscribe(`$.${name}`, this.update)
-      }
+      this.subscribe(relation || `$.${name}`, this.update)
     }
 
     // bind versions of each HTTP method that update (and thus publish) results
@@ -160,4 +156,4 @@ export class Service extends gooey.Service {
 /**
  * POJO-style alias of Service
  */
-export const service = ({name, state, model, base, parent, children, rel}) => new Service(name, base, state, model, parent, children, rel)
+export const service = ({ name, state, model, base, parent, children, rel }) => new Service(name, base, state, model, parent, children, rel)
