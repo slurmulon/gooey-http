@@ -24,7 +24,7 @@ Read about the [challenges of synchronizing state in SPAs how Gooey tries to add
 
 A tiny chainable interface for performing HTTP transactions backed by Gooey data synchronization
 
-```
+```js
 const login = (username, password) => {
   return new http.Request('POST', 'http://127.0.0.1/token')
     .header('cache-control', 'no-cache')
@@ -55,7 +55,7 @@ The interface also supports easy managent of a resource's current context (i.e. 
 The following example performs a `PUT` to `/v1/user/:id/password`, automatically updating
 the current resource state and publishing the change to all dependent services:
 
-```
+```js
 const user = new http.rest.service({
   base: '/v1/',
   name: 'user',
