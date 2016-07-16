@@ -23,8 +23,8 @@ export const xhr = {
 export class Http {
 
   /**
-   * @param {?String} baseUrl optional base URL to prepend to all HTTP request URLs
-   * @param {?Object} proxies request and response middlewares
+   * @param {string} [baseUrl] optional base URL to prepend to all HTTP request URLs
+   * @param {Object} [proxies] request and response middlewares
    */
   constructor(baseUrl?: string, proxies?: Object = {}) {
     this.baseUrl = baseUrl // TODO
@@ -50,13 +50,13 @@ export class Request {
   /**
    * Creates a native XHR object and sends request on resolve
    * 
-   * @param {String}  method
-   * @param {String}  url
-   * @param {?String|Object} body
-   * @param {?Object} headers
-   * @param {?String} query
-   * @param {?String} type
-   * @param {?String} charset
+   * @param {string} method
+   * @param {string} url
+   * @param {string|Object} [body]
+   * @param {Object} [headers]
+   * @param {string} [query]
+   * @param {string} [type]
+   * @param {string} [charset]
    * @returns {Request}
    */
   constructor(
@@ -80,7 +80,7 @@ export class Request {
   /**
    * Fetches request URL
    * 
-   * @returns {String}
+   * @returns {string}
    */
   get _url(): string {
     return this.__url
@@ -89,7 +89,7 @@ export class Request {
   /**
    * Modifies request URL
    * 
-   * @param {String} url
+   * @param {string} url
    */
   set _url(url: string) {
     if (urlRegex().test(url)) {
@@ -101,7 +101,7 @@ export class Request {
    * Modifies request URL
    * Chainable alias of `set _url`
    * 
-   * @param {String} url
+   * @param {string} url
    * @returns {Request}
    */
   url(url: string): Request {
@@ -112,7 +112,7 @@ export class Request {
   /**
    * Fetches request method
    * 
-   * @returns {String}
+   * @returns {string}
    */
   get _method(): string {
     return this.__method
@@ -121,7 +121,7 @@ export class Request {
   /**
    * Modifies request method (GET, POST, PUT, etc)
    * 
-   * @param {String} method
+   * @param {string} method
    */
   set _method(method: string) {
     if (methods.find(m => m === method)) {
@@ -133,7 +133,7 @@ export class Request {
    * Modifies request method (GET, POST, PUT, etc)
    * Chainable alias of `set _method`
    * 
-   * @param {String} method
+   * @param {string} method
    * @returns {Request}
    */
   method(method: string): Request {
@@ -144,7 +144,7 @@ export class Request {
   /**
    * Fetches request body
    * 
-   * @returns {String}
+   * @returns {string}
    */
   get _body(): string {
     return this.__body
@@ -153,7 +153,7 @@ export class Request {
   /**
    * Sets request body and forces Content-Type for Objects and Strings
    * 
-   * @param {Object|String} body
+   * @param {Object|string} body
    */
   set _body(body) {
     this.__body = body
@@ -175,7 +175,7 @@ export class Request {
    * Sets request body
    * Chainable alias of `set _body`
    * 
-   * @param {Object|String} body
+   * @param {Object|string} body
    * @returns {Request}
    */
   body(body): Request {
@@ -187,7 +187,7 @@ export class Request {
   /**
    * Fetches request headers, appending Content-Type headers as appropriate
    * 
-   * @returns {String}
+   * @returns {string}
    */
   get _headers(): Object {
     if (this._type) {
@@ -212,8 +212,8 @@ export class Request {
    * Modifies request header and bind to XHR object
    * Chainable
    * 
-   * @param {String} field
-   * @param {String} value
+   * @param {string} field
+   * @param {string} value
    * @returns {Request}
    */
   header(field: string, value: string): Request {
@@ -239,7 +239,7 @@ export class Request {
   /**
    * Fetches request query parameters
    * 
-   * @returns {String}
+   * @returns {string}
    */
   get _query(): string {
     return this.__query
@@ -267,7 +267,7 @@ export class Request {
    * Modifies request URL query parameters based on object
    * Chainable alias of `set _query`
    * 
-   * @param {Object|String} headers {field: value}
+   * @param {Object|string} headers {field: value}
    * @returns {Request}
    */
   query(params): Request {
@@ -309,7 +309,7 @@ export class Request {
   /**
    * Fetches request content type
    * 
-   * @returns {String}
+   * @returns {string}
    */
   get _type(): string {
     return this.__type
@@ -318,7 +318,7 @@ export class Request {
   /**
    * Sets request content type
    * 
-   * @param {String} type
+   * @param {string} type
    */
   set _type(type: string = 'application/json') {
     this.__type = type
@@ -329,7 +329,7 @@ export class Request {
    * Sets request content type
    * Chainable alias of `set _type`
    * 
-   * @param {String} type
+   * @param {string} type
    * @returns {Request}
    */
   type(type: string): Request {
@@ -341,7 +341,7 @@ export class Request {
   /**
    * Fetches request character set
    * 
-   * @returns {String}
+   * @returns {string}
    */
   get _charset(): string {
     return this.__charset || 'UTF-8'
@@ -350,7 +350,7 @@ export class Request {
   /**
    * Sets request character set
    * 
-   * @param {String} charset
+   * @param {string} charset
    */
   set _charset(charset: string = 'UTF-8') {
     // TODO - validate for proper charsets
@@ -361,7 +361,7 @@ export class Request {
    * Sets request character set
    * Chainable alias of `set _charset`
    * 
-   * @param {String} charset
+   * @param {string} charset
    * @returns {Request}
    */
   charset(charset: string): Request {
@@ -452,8 +452,8 @@ export class Request {
    *
    * TODO - text/html, image/*, video/*, pdf/*, etc
    * 
-   * @param {Object|String} data
-   * @param {String} mimeType
+   * @param {Object|string} data
+   * @param {string} mimeType
    * @returns {Object}
    */
   mimeify(data, mimeType: string = this._type): Object {

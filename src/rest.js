@@ -10,12 +10,12 @@ import * as gooey from 'gooey-core'
 export class Resource extends http.Http {
 
   /**
-   * @param {String} name unique name mapping to a Rest API resource
+   * @param {string} name unique name mapping to a Rest API resource
    * @param {Function} model a container for business logic that's parallel to a Rest API resource
-   * @param {?String} base optional base URL of the API (primarily for root/high-level services)
-   * @param {?Service} parent service that this resource inherits data and/or state from
-   * @param {?Service} children services that are dependent upon this resource's data and/or state
-   * @param {?Service} pattern JsonPath pattern that's used to automatically subscribe service to a parent resource's sub-state
+   * @param {string} base optional base URL of the API (primarily for root/high-level services)
+   * @param {Service} [parent] service that this resource inherits data and/or state from
+   * @param {Service} [children] services that are dependent upon this resource's data and/or state
+   * @param {Service} [pattern] JsonPath pattern that's used to automatically subscribe service to a parent resource's sub-state
    */
   constructor(base: string, slug: string, collection: Boolean = true) {
     super(base) // TODO
@@ -28,7 +28,7 @@ export class Resource extends http.Http {
   /**
    * Copies resource and turns it into a singleton
    *
-   * @param id {String} id identifier of resource entity
+   * @param id {string} id identifier of resource entity
    * @returns {Resource}
    */
   one(id: string): Resource {
@@ -43,7 +43,7 @@ export class Resource extends http.Http {
   /**
    * Copies resource and turns it into a collection
    *
-   * @param id {String} id identifier of resource entity
+   * @param id {string} id identifier of resource entity
    * @returns {Resource}
    */
   all(): Resource {
@@ -74,12 +74,12 @@ export class Resource extends http.Http {
 export class Service extends gooey.Service {
 
   /**
-   * @param {String} name unique name mapping to a Rest API resource
-   * @param {?String} base optional base URL of the API (primarily for root/high-level services)
+   * @param {string} name unique name mapping to a Rest API resource
+   * @param {string} [base] optional base URL of the API (primarily for root/high-level services)
    * @param {*} state value to use as the canonical state of the Service
    * @param {Function} model a container for business logic that's parallel to a Rest API resource
-   * @param {?Service} parent service that this resource inherits data and/or state from
-   * @param {?String|Function} rel pattern that describe's relationship to parent. Also used to automatically subscribe service to a parent resource's sub-state
+   * @param {Service} parent service that this resource inherits data and/or state from
+   * @param {string|Function} [rel] pattern that describe's relationship to parent. Also used to automatically subscribe service to a parent resource's sub-state
    */
   constructor(name: string, base?: string, state, model: Function, parent?: Service, rel?: Function) {
     super(name, state, model, parent)
@@ -112,7 +112,7 @@ export class Service extends gooey.Service {
    * Creates a Service representing the state of a specific API resource entity
    * Promise resolved is triggered whenever the relevant resource entity's
    *
-   * @param {String} id identifier ot API resource entity
+   * @param {string} id identifier ot API resource entity
    * @returns {Promise} resolves with a new resource based on entity state in API
    */
   by(id: string): Promise {
