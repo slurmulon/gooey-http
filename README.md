@@ -1,6 +1,6 @@
 # gooey.http
 
-> :cactus: HTTP client-server synchronization module for Gooey
+> :satellite: HTTP client-server synchronization module for Gooey
 
 `gooey.http` is a module containing several HTTP-based APIs that leverage Gooey's data synchronization mechanism.
 
