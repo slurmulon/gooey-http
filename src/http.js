@@ -1,5 +1,3 @@
-'use strict'
-
 import urlRegex from 'url-regex'
 import XMLHttpRequest from 'xhr2'
 import FormData from 'form-data'
@@ -27,7 +25,7 @@ export class Http {
    * @param {Object} [proxies] request and response middlewares
    */
   constructor(baseUrl?: string, proxies?: Object = {}) {
-    this.baseUrl = baseUrl // TODO
+    this.baseUrl = baseUrl // TODO: integrate
     this.proxies = proxies
 
     methods.forEach(m => {

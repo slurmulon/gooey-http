@@ -1,24 +1,24 @@
-'use strict'
-
-import * as http  from '../lib/http'
-import * as gooey from 'gooey-core'
+import { Http, methods as httpMethods } from '../lib/http'
+import { Service as GooeyService } from 'gooey-core'
 
 /**
  * Represents a single Restful API resource
  * Supports both singleton and collection resource entities
  */
-export class Resource extends http.Http {
+export class Resource extends Http {
 
   /**
    * @param {string} name unique name mapping to a Rest API resource
    * @param {Function} model a container for business logic that's parallel to a Rest API resource
    * @param {string} base optional base URL of the API (primarily for root/high-level services)
+   * @param {string} slug unique identifier of URL
+   * @param {boolean} collection whether or not the resource represents a collection (can be overriden per request)
    * @param {Service} [parent] service that this resource inherits data and/or state from
    * @param {Service} [children] services that are dependent upon this resource's data and/or state
-   * @param {Service} [pattern] JsonPath pattern that's used to automatically subscribe service to a parent resource's sub-state
+   * @param {Service} [pattern] JsonWhere pattern that's used to automatically subscribe service to a parent resource's sub-state
    */
-  constructor(base: string, slug: string, collection: Boolean = true) {
-    super(base) // TODO
+  constructor(name: string, model: Function, base: string, slug: string, collection: Boolean = true) {
+    super(base)
 
     this.base = base
     this.slug = slug
@@ -71,7 +71,7 @@ export class Resource extends http.Http {
  * Messages updates to related resource entities via PubSub
  * in order to synchronize states and sub-states.
  */
-export class Service extends gooey.Service {
+export class Service extends GooeyService {
 
   /**
    * @param {string} name unique name mapping to a Rest API resource
@@ -96,7 +96,7 @@ export class Service extends gooey.Service {
     }
 
     // bind versions of each HTTP method that update (and thus publish) results
-    http.methods.forEach(m => {
+    httpMethods.forEach(m => {
       const method = m.toLowerCase()
       const resId  = this.selected.entity
       const resUrl = resId ? `${base}/${resId}/${name}` : `${base}/${name}`
@@ -156,4 +156,4 @@ export class Service extends gooey.Service {
 /**
  * POJO-style alias of Service
  */
-export const service = ({ name, state, model, base, parent, children, rel }) => new Service(name, base, state, model, parent, children, rel)
+export const service = ({ name, base, state, model,  parent, children, rel }) => new Service(name, base, state, model, parent, children, rel)
