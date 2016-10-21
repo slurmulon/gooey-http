@@ -68,6 +68,7 @@ const user = new http.rest.service({
 # Roadmap
 
 - [ ] Alternative non-chainable API (POJO-style)
+- [ ] Hypermedia support (`rel`s, self links, etc.)
 - [ ] Request interceptors
 - [ ] Response interceptors
 - [ ] Support [Fetch API](https://github.com/clojure/tools.cli)
