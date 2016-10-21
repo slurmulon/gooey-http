@@ -2,7 +2,7 @@
 
 > :satellite: HTTP client-server synchronization module for Gooey
 
-`gooey.http` is a module containing several HTTP-based APIs that leverage Gooey's data synchronization mechanism.
+`gooey.http` is a module containing several HTTP-based APIs that leverage Gooey's state synchronization mechanism.
 
 # Problem
 
@@ -64,3 +64,12 @@ const user = new http.rest.service({
   }
 })
 ```
+
+# Roadmap
+
+- [ ] Alternative non-chainable API (POJO-style)
+- [ ] Request interceptors
+- [ ] Response interceptors
+- [ ] Support [Fetch API](https://github.com/clojure/tools.cli)
+- [ ] Allow use of [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) for expensive background calls
+- [ ] Documentation and examples
